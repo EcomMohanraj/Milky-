@@ -7,9 +7,10 @@ export const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
 export const isSupabaseConfigured =
   supabaseUrl &&
   supabaseUrl !== "https://mock-project.supabase.co" &&
+  supabaseUrl !== "https://your-project-id.supabase.co" &&
   supabaseAnonKey &&
-  supabaseAnonKey !== "mock-anon-key";
-
+  supabaseAnonKey !== "mock-anon-key" &&
+  supabaseAnonKey !== "your-supabase-anon-key";
 export const supabase = isSupabaseConfigured
   ? createClient(supabaseUrl, supabaseAnonKey)
   : null;

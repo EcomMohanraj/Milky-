@@ -15,6 +15,10 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://milky-psi.vercel.app"),
+  alternates: {
+    canonical: "/",
+  },
   title: "Milky Mushrooms | Fresh Milky Mushrooms Direct From Farm To Home",
   description:
     "Order premium organic fresh Milky Mushrooms (Calocybe indica) directly from our farm in Dindigul, Tamil Nadu. High in protein, low in fat, chemical-free.",
@@ -31,7 +35,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Milky Mushrooms | Organic Mushrooms Direct From Farm",
     description: "Premium fresh Milky Mushrooms harvested daily and delivered directly to your home.",
-    url: "https://milkymushrooms.com",
+    url: process.env.NEXT_PUBLIC_APP_URL || "https://milky-psi.vercel.app",
     siteName: "Milky Mushrooms",
     locale: "en_IN",
     type: "website",

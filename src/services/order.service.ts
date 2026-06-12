@@ -15,18 +15,23 @@ export const orderService = {
     };
 
     if (isSupabaseConfigured && supabase) {
-      const { data, error } = await supabase
-        .from("orders")
-        .insert(newOrder)
-        .select()
-        .single();
-      if (!error && data) {
-        const orderItems = items.map((item) => ({
-          ...item,
-          order_id: data.id,
-        }));
-        await supabase.from("order_items").insert(orderItems);
-        return { ...data, items: orderItems } as Order;
+      try {
+        const { data, error } = await supabase
+          .from("orders")
+          .insert(newOrder)
+          .select()
+          .single();
+        if (!error && data) {
+          const orderItems = items.map((item) => ({
+            ...item,
+            order_id: data.id,
+          }));
+          await supabase.from("order_items").insert(orderItems);
+          return { ...data, items: orderItems } as Order;
+        }
+        console.warn("Supabase createOrder returned error, falling back to local: ", error);
+      } catch (err) {
+        console.error("Supabase createOrder failed, falling back: ", err);
       }
     }
 
@@ -60,12 +65,17 @@ export const orderService = {
 
   async getOrders(userId?: string): Promise<Order[]> {
     if (isSupabaseConfigured && supabase && userId) {
-      const { data, error } = await supabase
-        .from("orders")
-        .select("*, order_items(*, products(*))")
-        .eq("user_id", userId)
-        .order("created_at", { ascending: false });
-      if (!error && data) return data as Order[];
+      try {
+        const { data, error } = await supabase
+          .from("orders")
+          .select("*, order_items(*, products(*))")
+          .eq("user_id", userId)
+          .order("created_at", { ascending: false });
+        if (!error && data) return data as Order[];
+        console.warn("Supabase getOrders returned error, falling back to local: ", error);
+      } catch (err) {
+        console.error("Supabase getOrders failed, falling back: ", err);
+      }
     }
     const orders = getLocalStorageItem<Order[]>("milky_orders", []);
     if (userId) {
@@ -76,8 +86,13 @@ export const orderService = {
 
   async updateOrderStatus(orderId: string, status: Order["status"]): Promise<void> {
     if (isSupabaseConfigured && supabase) {
-      await supabase.from("orders").update({ status }).eq("id", orderId);
-      return;
+      try {
+        const { error } = await supabase.from("orders").update({ status }).eq("id", orderId);
+        if (!error) return;
+        console.warn("Supabase updateOrderStatus returned error, falling back to local: ", error);
+      } catch (err) {
+        console.error("Supabase updateOrderStatus failed, falling back: ", err);
+      }
     }
     const orders = getLocalStorageItem<Order[]>("milky_orders", []);
     const updated = orders.map((o) => (o.id === orderId ? { ...o, status } : o));
@@ -87,11 +102,16 @@ export const orderService = {
   // ADDRESSES
   async getAddresses(userId: string): Promise<Address[]> {
     if (isSupabaseConfigured && supabase) {
-      const { data, error } = await supabase
-        .from("addresses")
-        .select("*")
-        .eq("user_id", userId);
-      if (!error && data) return data as Address[];
+      try {
+        const { data, error } = await supabase
+          .from("addresses")
+          .select("*")
+          .eq("user_id", userId);
+        if (!error && data) return data as Address[];
+        console.warn("Supabase getAddresses returned error, falling back to local: ", error);
+      } catch (err) {
+        console.error("Supabase getAddresses failed, falling back: ", err);
+      }
     }
     const addresses = getLocalStorageItem<Address[]>("milky_addresses", []);
     return addresses.filter((a) => a.user_id === userId);
@@ -103,12 +123,17 @@ export const orderService = {
       id: "addr-" + Math.random().toString(36).substr(2, 9),
     };
     if (isSupabaseConfigured && supabase) {
-      const { data, error } = await supabase
-        .from("addresses")
-        .insert(newAddress)
-        .select()
-        .single();
-      if (!error && data) return data as Address;
+      try {
+        const { data, error } = await supabase
+          .from("addresses")
+          .insert(newAddress)
+          .select()
+          .single();
+        if (!error && data) return data as Address;
+        console.warn("Supabase createAddress returned error, falling back to local: ", error);
+      } catch (err) {
+        console.error("Supabase createAddress failed, falling back: ", err);
+      }
     }
     const addresses = getLocalStorageItem<Address[]>("milky_addresses", []);
     if (newAddress.is_default) {
@@ -123,8 +148,13 @@ export const orderService = {
 
   async deleteAddress(addressId: string): Promise<void> {
     if (isSupabaseConfigured && supabase) {
-      await supabase.from("addresses").delete().eq("id", addressId);
-      return;
+      try {
+        const { error } = await supabase.from("addresses").delete().eq("id", addressId);
+        if (!error) return;
+        console.warn("Supabase deleteAddress returned error, falling back to local: ", error);
+      } catch (err) {
+        console.error("Supabase deleteAddress failed, falling back: ", err);
+      }
     }
     const addresses = getLocalStorageItem<Address[]>("milky_addresses", []);
     const filtered = addresses.filter((a) => a.id !== addressId);

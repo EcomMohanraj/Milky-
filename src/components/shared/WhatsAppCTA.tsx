@@ -5,7 +5,7 @@ import { MessageCircle } from "lucide-react";
 import { motion } from "framer-motion";
 
 export const WhatsAppCTA: React.FC = () => {
-  const phoneNumber = "+919876543210";
+  const phoneNumber = "+918610755195";
   const defaultMessage = "Hello Milky Mushrooms! I would like to order fresh mushrooms from your farm.";
   const encodedMessage = encodeURIComponent(defaultMessage);
   const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;

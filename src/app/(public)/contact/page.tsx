@@ -176,8 +176,8 @@ export default function ContactPage() {
               </li>
               <li className="flex gap-3 items-center">
                 <Phone className="h-4.5 w-4.5 text-primary shrink-0" />
-                <a href="tel:+919876543210" className="text-muted-foreground hover:text-primary transition-colors">
-                  +91 98765 43210
+                <a href="tel:+918610755195" className="text-muted-foreground hover:text-primary transition-colors">
+                  +91 86107 55195
                 </a>
               </li>
               <li className="flex gap-3 items-center">
@@ -253,7 +253,7 @@ export default function ContactPage() {
               Located on the Oddanchatram highway bypass. Visitors are welcome for crop training and direct bed purchasing after booking!
             </p>
             <a
-              href="https://maps.google.com"
+              href="https://maps.google.com/?q=10.3673,77.9803"
               target="_blank"
               rel="noopener noreferrer"
               className="text-xs text-primary font-bold hover:underline"

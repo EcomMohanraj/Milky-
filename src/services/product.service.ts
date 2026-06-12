@@ -223,8 +223,18 @@ export const productService = {
   async getProducts(): Promise<Product[]> {
     let products: Product[] = [];
     if (isSupabaseConfigured && supabase) {
-      const { data, error } = await supabase.from("products").select("*");
-      if (!error && data) products = data as Product[];
+      try {
+        const { data, error } = await supabase.from("products").select("*");
+        if (!error && data && data.length > 0) {
+          products = data as Product[];
+        } else {
+          console.warn("Supabase products returned empty or error, falling back to local/seed: ", error);
+          products = getLocalStorageItem("milky_products", SEED_PRODUCTS);
+        }
+      } catch (err) {
+        console.error("Supabase products fetch failed, falling back: ", err);
+        products = getLocalStorageItem("milky_products", SEED_PRODUCTS);
+      }
     } else {
       products = getLocalStorageItem("milky_products", SEED_PRODUCTS);
     }
@@ -233,14 +243,18 @@ export const productService = {
 
   async getProductBySlug(slug: string): Promise<Product | null> {
     if (isSupabaseConfigured && supabase) {
-      const { data, error } = await supabase
-        .from("products")
-        .select("*")
-        .eq("slug", slug)
-        .single();
-      if (!error && data) {
-        const p = data as Product;
-        return { ...p, image: fixImage(p.image) };
+      try {
+        const { data, error } = await supabase
+          .from("products")
+          .select("*")
+          .eq("slug", slug)
+          .single();
+        if (!error && data) {
+          const p = data as Product;
+          return { ...p, image: fixImage(p.image) };
+        }
+      } catch (err) {
+        console.error("Supabase getProductBySlug failed, falling back: ", err);
       }
     }
     const products = getLocalStorageItem("milky_products", SEED_PRODUCTS);
@@ -250,8 +264,13 @@ export const productService = {
 
   async updateProductStock(id: string, newStock: number): Promise<void> {
     if (isSupabaseConfigured && supabase) {
-      await supabase.from("products").update({ stock: newStock }).eq("id", id);
-      return;
+      try {
+        const { error } = await supabase.from("products").update({ stock: newStock }).eq("id", id);
+        if (!error) return;
+        console.warn("Supabase updateProductStock returned error, falling back to local: ", error);
+      } catch (err) {
+        console.error("Supabase updateProductStock failed, falling back: ", err);
+      }
     }
     const products = getLocalStorageItem("milky_products", SEED_PRODUCTS);
     const updated = products.map((p) => (p.id === id ? { ...p, stock: newStock } : p));
@@ -265,12 +284,17 @@ export const productService = {
       created_at: new Date().toISOString(),
     };
     if (isSupabaseConfigured && supabase) {
-      const { data, error } = await supabase
-        .from("products")
-        .insert(newProduct)
-        .select()
-        .single();
-      if (!error && data) return data as Product;
+      try {
+        const { data, error } = await supabase
+          .from("products")
+          .insert(newProduct)
+          .select()
+          .single();
+        if (!error && data) return data as Product;
+        console.warn("Supabase addProduct returned error, falling back to local: ", error);
+      } catch (err) {
+        console.error("Supabase addProduct failed, falling back: ", err);
+      }
     }
     const products = getLocalStorageItem("milky_products", SEED_PRODUCTS);
     products.push(newProduct);
@@ -280,8 +304,13 @@ export const productService = {
 
   async deleteProduct(id: string): Promise<void> {
     if (isSupabaseConfigured && supabase) {
-      await supabase.from("products").delete().eq("id", id);
-      return;
+      try {
+        const { error } = await supabase.from("products").delete().eq("id", id);
+        if (!error) return;
+        console.warn("Supabase deleteProduct returned error, falling back to local: ", error);
+      } catch (err) {
+        console.error("Supabase deleteProduct failed, falling back: ", err);
+      }
     }
     const products = getLocalStorageItem("milky_products", SEED_PRODUCTS);
     const filtered = products.filter((p) => p.id !== id);
@@ -291,29 +320,33 @@ export const productService = {
   // REVIEWS
   async getReviews(productId: string): Promise<Review[]> {
     if (isSupabaseConfigured && supabase) {
-      const { data, error } = await supabase
-        .from("reviews")
-        .select("*, users(name)")
-        .eq("product_id", productId);
-      if (!error && data) {
-        interface SupabaseReviewRow {
-          id: string;
-          product_id: string;
-          user_id: string;
-          rating: number;
-          comment: string;
-          created_at: string;
-          users: { name: string } | null;
+      try {
+        const { data, error } = await supabase
+          .from("reviews")
+          .select("*, users(name)")
+          .eq("product_id", productId);
+        if (!error && data) {
+          interface SupabaseReviewRow {
+            id: string;
+            product_id: string;
+            user_id: string;
+            rating: number;
+            comment: string;
+            created_at: string;
+            users: { name: string } | null;
+          }
+          return (data as unknown as SupabaseReviewRow[]).map((d) => ({
+            id: d.id,
+            product_id: d.product_id,
+            user_id: d.user_id,
+            rating: d.rating,
+            comment: d.comment,
+            created_at: d.created_at,
+            user_name: d.users?.name || "Verified Buyer",
+          })) as Review[];
         }
-        return (data as unknown as SupabaseReviewRow[]).map((d) => ({
-          id: d.id,
-          product_id: d.product_id,
-          user_id: d.user_id,
-          rating: d.rating,
-          comment: d.comment,
-          created_at: d.created_at,
-          user_name: d.users?.name || "Verified Buyer",
-        })) as Review[];
+      } catch (err) {
+        console.error("Supabase getReviews failed, falling back: ", err);
       }
     }
     const reviews = getLocalStorageItem<Review[]>("milky_reviews", SEED_REVIEWS);
@@ -328,17 +361,22 @@ export const productService = {
       user_name: userName,
     };
     if (isSupabaseConfigured && supabase) {
-      const { data, error } = await supabase
-        .from("reviews")
-        .insert({
-          product_id: review.product_id,
-          user_id: review.user_id,
-          rating: review.rating,
-          comment: review.comment,
-        })
-        .select()
-        .single();
-      if (!error && data) return { ...data, user_name: userName } as Review;
+      try {
+        const { data, error } = await supabase
+          .from("reviews")
+          .insert({
+            product_id: review.product_id,
+            user_id: review.user_id,
+            rating: review.rating,
+            comment: review.comment,
+          })
+          .select()
+          .single();
+        if (!error && data) return { ...data, user_name: userName } as Review;
+        console.warn("Supabase createReview returned error, falling back to local: ", error);
+      } catch (err) {
+        console.error("Supabase createReview failed, falling back: ", err);
+      }
     }
     const reviews = getLocalStorageItem<Review[]>("milky_reviews", SEED_REVIEWS);
     reviews.push(newReview);
@@ -350,8 +388,18 @@ export const productService = {
   async getBlogPosts(): Promise<BlogPost[]> {
     let blogs: BlogPost[] = [];
     if (isSupabaseConfigured && supabase) {
-      const { data, error } = await supabase.from("blog_posts").select("*");
-      if (!error && data) blogs = data as BlogPost[];
+      try {
+        const { data, error } = await supabase.from("blog_posts").select("*");
+        if (!error && data && data.length > 0) {
+          blogs = data as BlogPost[];
+        } else {
+          console.warn("Supabase blog posts returned empty or error, falling back to local/seed: ", error);
+          blogs = getLocalStorageItem("milky_blogs", SEED_BLOGS);
+        }
+      } catch (err) {
+        console.error("Supabase blog posts fetch failed, falling back: ", err);
+        blogs = getLocalStorageItem("milky_blogs", SEED_BLOGS);
+      }
     } else {
       blogs = getLocalStorageItem("milky_blogs", SEED_BLOGS);
     }
@@ -360,14 +408,18 @@ export const productService = {
 
   async getBlogPostBySlug(slug: string): Promise<BlogPost | null> {
     if (isSupabaseConfigured && supabase) {
-      const { data, error } = await supabase
-        .from("blog_posts")
-        .select("*")
-        .eq("slug", slug)
-        .single();
-      if (!error && data) {
-        const b = data as BlogPost;
-        return { ...b, image: fixImage(b.image) };
+      try {
+        const { data, error } = await supabase
+          .from("blog_posts")
+          .select("*")
+          .eq("slug", slug)
+          .single();
+        if (!error && data) {
+          const b = data as BlogPost;
+          return { ...b, image: fixImage(b.image) };
+        }
+      } catch (err) {
+        console.error("Supabase getBlogPostBySlug failed, falling back: ", err);
       }
     }
     const blogs = getLocalStorageItem("milky_blogs", SEED_BLOGS);
@@ -382,12 +434,17 @@ export const productService = {
       created_at: new Date().toISOString(),
     };
     if (isSupabaseConfigured && supabase) {
-      const { data, error } = await supabase
-        .from("blog_posts")
-        .insert(newBlog)
-        .select()
-        .single();
-      if (!error && data) return data as BlogPost;
+      try {
+        const { data, error } = await supabase
+          .from("blog_posts")
+          .insert(newBlog)
+          .select()
+          .single();
+        if (!error && data) return data as BlogPost;
+        console.warn("Supabase createBlogPost returned error, falling back to local: ", error);
+      } catch (err) {
+        console.error("Supabase createBlogPost failed, falling back: ", err);
+      }
     }
     const blogs = getLocalStorageItem("milky_blogs", SEED_BLOGS);
     blogs.push(newBlog);
@@ -397,8 +454,13 @@ export const productService = {
 
   async deleteBlogPost(id: string): Promise<void> {
     if (isSupabaseConfigured && supabase) {
-      await supabase.from("blog_posts").delete().eq("id", id);
-      return;
+      try {
+        const { error } = await supabase.from("blog_posts").delete().eq("id", id);
+        if (!error) return;
+        console.warn("Supabase deleteBlogPost returned error, falling back to local: ", error);
+      } catch (err) {
+        console.error("Supabase deleteBlogPost failed, falling back: ", err);
+      }
     }
     const blogs = getLocalStorageItem("milky_blogs", SEED_BLOGS);
     const filtered = blogs.filter((b) => b.id !== id);
