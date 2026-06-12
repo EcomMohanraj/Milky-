@@ -466,14 +466,14 @@ export default function HomePage() {
 
           <div className="relative z-10 flex flex-wrap gap-4 shrink-0">
             <a
-              href="tel:+919876543210"
+              href="tel:+918610755195"
               className="px-6 py-3 bg-black/35 hover:bg-black/50 text-white font-bold text-sm rounded-xl flex items-center gap-2 border border-white/10 transition-colors"
             >
               <PhoneCall className="w-4 h-4" />
               Call Farm
             </a>
             <a
-              href="https://wa.me/919876543210?text=I'd%20like%20to%20place%20an%20order"
+              href="https://wa.me/918610755195?text=I'd%20like%20to%20place%20an%20order"
               target="_blank"
               rel="noopener noreferrer"
               className="px-6 py-3 bg-white text-primary font-bold text-sm rounded-xl hover:bg-white/90 shadow-lg shadow-black/10 flex items-center gap-2 transition-colors"

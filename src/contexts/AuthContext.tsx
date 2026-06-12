@@ -20,7 +20,7 @@ const MOCK_ADMIN: User = {
   id: "admin-user-id",
   name: "Milky Mushrooms Admin",
   email: "admin@milky.com",
-  phone: "+91 98765 43210",
+  phone: "+91 86107 55195",
   role: "admin",
 };
 

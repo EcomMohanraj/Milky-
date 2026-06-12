@@ -1,5 +1,6 @@
 "use client";
 
+
 import React, { useEffect, useState, Suspense, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
@@ -183,7 +184,7 @@ function DashboardContent() {
         pincode: values.pincode,
         is_default: values.is_default,
       });
-      
+
       setAddresses((prev) => [...prev, newAddr]);
       if (newAddr.is_default || addresses.length === 0) {
         setSelectedAddressId(newAddr.id);
@@ -614,7 +615,7 @@ function DashboardContent() {
                     </div>
                   </label>
                 ))}
-                
+
                 <button
                   onClick={() => setShowAddressForm(true)}
                   className="text-left text-xs font-bold text-primary hover:underline self-start flex items-center gap-1 mt-1"
@@ -628,7 +629,7 @@ function DashboardContent() {
             {showAddressForm && (
               <form onSubmit={addressForm.handleSubmit(handleAddAddress)} className="border-t border-border pt-5 grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <h3 className="font-bold text-xs text-foreground sm:col-span-3">Add New Address</h3>
-                
+
                 <div className="flex flex-col gap-1 sm:col-span-3">
                   <label className="text-[9px] font-bold text-muted-foreground uppercase">Address</label>
                   <input
@@ -746,7 +747,7 @@ function DashboardContent() {
             >
               {placingOrder ? "Placing Order..." : `Pay ₹${cartTotal.toFixed(2)} & Complete`}
             </button>
-            
+
             <button
               onClick={() => setIsCheckoutMode(false)}
               className="w-full text-center text-xs text-muted-foreground hover:text-foreground font-semibold transition-colors"
@@ -762,7 +763,7 @@ function DashboardContent() {
   // STANDARD USER DASHBOARD SCREEN
   return (
     <div className="container mx-auto px-4 md:px-6 py-10 flex-grow flex flex-col md:flex-row gap-8 pb-20">
-      
+
       {/* Sidebar Tabs */}
       <div className="w-full md:w-64 shrink-0 flex flex-col gap-3">
         <div className="bg-card border border-border/80 p-5 rounded-2xl shadow-sm text-center flex flex-col items-center gap-2">
@@ -805,7 +806,7 @@ function DashboardContent() {
 
       {/* Main Content Area */}
       <div className="flex-grow bg-card border border-border/80 p-6 md:p-8 rounded-3xl shadow-sm min-h-[400px] flex flex-col justify-between">
-        
+
         {loadingData ? (
           <div className="flex items-center justify-center h-full py-16">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
@@ -816,7 +817,7 @@ function DashboardContent() {
             {activeTab === "orders" && (
               <div className="flex flex-col gap-5">
                 <h2 className="text-xl font-extrabold text-foreground font-outfit">Past Orders</h2>
-                
+
                 {orders.length === 0 ? (
                   <div className="py-12 text-center flex flex-col items-center gap-4">
                     <ShoppingBag className="w-12 h-12 text-muted-foreground" />
@@ -878,7 +879,7 @@ function DashboardContent() {
                             <span className="flex items-center gap-1"><Truck className="w-3.5 h-3.5" /> Shipped</span>
                             <span>Delivered</span>
                           </div>
-                          
+
                           <div className="w-full h-1.5 bg-border rounded-full overflow-hidden">
                             <div
                               className="h-full bg-primary transition-all duration-500"
@@ -887,8 +888,8 @@ function DashboardContent() {
                                   ord.status === "delivered"
                                     ? "100%"
                                     : ord.status === "shipped"
-                                    ? "66%"
-                                    : "33%",
+                                      ? "66%"
+                                      : "33%",
                               }}
                             />
                           </div>
@@ -918,7 +919,7 @@ function DashboardContent() {
                 {showAddressForm && (
                   <form onSubmit={addressForm.handleSubmit(handleAddAddress)} className="bg-muted/10 border border-border p-4 rounded-2xl grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <h3 className="font-bold text-xs text-foreground sm:col-span-3">Add New Address</h3>
-                    
+
                     <div className="flex flex-col gap-1 sm:col-span-3">
                       <label className="text-[9px] font-bold text-muted-foreground uppercase">Address</label>
                       <input
@@ -1024,7 +1025,7 @@ function DashboardContent() {
             {activeTab === "profile" && (
               <div className="flex flex-col gap-5 max-w-md">
                 <h2 className="text-xl font-extrabold text-foreground font-outfit">Edit Profile details</h2>
-                
+
                 <form onSubmit={handleSaveProfile} className="flex flex-col gap-4">
                   <div className="flex flex-col gap-1">
                     <label className="text-[10px] font-bold text-muted-foreground uppercase">Email Address</label>
@@ -1070,7 +1071,7 @@ function DashboardContent() {
             )}
           </div>
         )}
-        
+
         {/* Bottom Panel back to shop */}
         <div className="border-t border-border mt-8 pt-4 flex justify-between items-center text-xs text-muted-foreground">
           <span>Milky Mushrooms Farm Shop</span>

@@ -30,9 +30,12 @@ export const Footer: React.FC = () => {
                 <ShieldCheck className="h-4 w-4 text-primary shrink-0" />
                 100% Organic & Chemical-Free
               </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle className="h-4 w-4 text-primary shrink-0" />
-                FSSAI Certified Cultivation
+              <div className="flex flex-col gap-0.5">
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="h-4 w-4 text-primary shrink-0" />
+                  <span className="font-bold">FSSAI Certified Cultivation</span>
+                </div>
+                <span className="text-[10px] text-muted-foreground pl-6">Lic. No. 22426292000031</span>
               </div>
             </div>
           </div>
@@ -73,7 +76,7 @@ export const Footer: React.FC = () => {
               </li>
               <li className="flex gap-2.5 items-center text-muted-foreground">
                 <Phone className="h-4 w-4 text-primary shrink-0" />
-                <a href="tel:+919876543210" className="hover:text-primary transition-colors">+91 98765 43210</a>
+                <a href="tel:+918610755195" className="hover:text-primary transition-colors">+91 86107 55195</a>
               </li>
               <li className="flex gap-2.5 items-center text-muted-foreground">
                 <Mail className="h-4 w-4 text-primary shrink-0" />

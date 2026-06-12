@@ -27,7 +27,7 @@ export default function AboutFarmPage() {
     },
     {
       title: "FSSAI Food Quality Standard",
-      desc: "Licensed under Food Safety and Standards Authority of India (FSSAI) for hygienic harvesting, packing, and dispatch operations.",
+      desc: "Licensed under Food Safety and Standards Authority of India (FSSAI), Lic. No. 22426292000031. We maintain strict protocols for hygienic harvesting, packing, and dispatch operations.",
     },
     {
       title: "Zero Waste Agriculture",
