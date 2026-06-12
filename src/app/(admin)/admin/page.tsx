@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import {
   ShoppingBag,
   Package,
@@ -597,7 +598,7 @@ export default function AdminDashboardPage() {
                           <tr key={prod.id} className="border-b border-border/60 hover:bg-muted/10">
                             <td className="py-2.5 px-2 shrink-0">
                               <div className="w-10 h-10 rounded overflow-hidden relative bg-secondary">
-                                <img src={prod.image} alt={prod.name} className="object-cover w-full h-full" />
+                                <Image src={prod.image} alt={prod.name} fill sizes="40px" className="object-cover" />
                               </div>
                             </td>
                             <td className="py-2.5 px-2 font-bold text-foreground">{prod.name}</td>
@@ -818,7 +819,7 @@ export default function AdminDashboardPage() {
                           <tr key={b.id} className="border-b border-border/60 hover:bg-muted/10">
                             <td className="py-2 px-2">
                               <div className="w-10 h-8 rounded overflow-hidden relative bg-secondary">
-                                <img src={b.image} alt={b.title} className="object-cover w-full h-full" />
+                                <Image src={b.image} alt={b.title} fill sizes="40px" className="object-cover" />
                               </div>
                             </td>
                             <td className="py-2 px-2 font-bold text-foreground">{b.title}</td>
