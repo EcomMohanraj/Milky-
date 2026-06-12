@@ -1,0 +1,20 @@
+import type { MetadataRoute } from "next";
+
+export default function manifest(): MetadataRoute.Manifest {
+  return {
+    name: "Milky Mushrooms Farm",
+    short_name: "MilkyMushrooms",
+    description: "Fresh organic Milky Mushrooms direct from farm in Dindigul to your home",
+    start_url: "/",
+    display: "standalone",
+    background_color: "#faf7ed",
+    theme_color: "#15803d",
+    icons: [
+      {
+        src: "/favicon.ico",
+        sizes: "any",
+        type: "image/x-icon",
+      },
+    ],
+  };
+}
