@@ -32,6 +32,11 @@ export default function AdminDashboardPage() {
   const [blogs, setBlogs] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Filter and search states for orders
+  const [orderStatusFilter, setOrderStatusFilter] = useState<string>("all");
+  const [orderSearchVal, setOrderSearchVal] = useState<string>("");
+  const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
+
   // Form states for creating products
   const [showProductForm, setShowProductForm] = useState(false);
   const [prodName, setProdName] = useState("");
@@ -382,54 +387,285 @@ export default function AdminDashboardPage() {
               {/* ORDERS MANAGEMENT */}
               {activeTab === "orders" && (
                 <div className="flex flex-col gap-6">
-                  <h2 className="text-lg font-extrabold text-foreground font-outfit">Orders Management</h2>
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-border/40 pb-3">
+                    <h2 className="text-lg font-extrabold text-foreground font-outfit">Orders Management</h2>
+                    <span className="text-xs text-muted-foreground font-bold bg-muted/40 px-2 py-0.5 rounded-md">
+                      Showing {orders.filter((ord) => {
+                        const matchesStatus = orderStatusFilter === "all" || ord.status === orderStatusFilter;
+                        const matchesSearch = ord.id.toLowerCase().includes(orderSearchVal.toLowerCase()) ||
+                                              (ord.address || "").toLowerCase().includes(orderSearchVal.toLowerCase());
+                        return matchesStatus && matchesSearch;
+                      }).length} of {orders.length} orders
+                    </span>
+                  </div>
+
                   {orders.length === 0 ? (
                     <p className="text-xs text-muted-foreground italic py-8 text-center">No orders placed yet.</p>
                   ) : (
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-xs text-left border-collapse">
-                        <thead>
-                          <tr className="border-b border-border/60 text-muted-foreground font-bold uppercase tracking-wider">
-                            <th className="py-3 px-2">Order ID</th>
-                            <th className="py-3 px-2">Date</th>
-                            <th className="py-3 px-2">Address</th>
-                            <th className="py-3 px-2">Amount</th>
-                            <th className="py-3 px-2">Status</th>
-                            <th className="py-3 px-2 text-right">Action</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {orders.map((ord) => (
-                            <tr key={ord.id} className="border-b border-border/60 hover:bg-muted/10">
-                              <td className="py-3.5 px-2 font-mono text-primary font-bold">{ord.id}</td>
-                              <td className="py-3.5 px-2 text-muted-foreground">
-                                {new Date(ord.created_at).toLocaleDateString()}
-                              </td>
-                              <td className="py-3.5 px-2 max-w-[150px] truncate text-muted-foreground" title={ord.address}>
-                                {ord.address}
-                              </td>
-                              <td className="py-3.5 px-2 font-extrabold text-foreground">₹{ord.amount.toFixed(2)}</td>
-                              <td className="py-3.5 px-2">
-                                <span className="font-bold uppercase text-[9px] text-primary">{ord.status}</span>
-                              </td>
-                              <td className="py-3.5 px-2 text-right">
+                    <>
+                      {/* Status Breakdown Analytics Grid */}
+                      {(() => {
+                        const pendingCount = orders.filter((o) => o.status === "pending").length;
+                        const paidCount = orders.filter((o) => o.status === "paid").length;
+                        const shippedCount = orders.filter((o) => o.status === "shipped").length;
+                        const deliveredCount = orders.filter((o) => o.status === "delivered").length;
+                        const failedCount = orders.filter((o) => o.status === "failed").length;
+
+                        const filteredOrders = orders.filter((ord) => {
+                          const matchesStatus = orderStatusFilter === "all" || ord.status === orderStatusFilter;
+                          const matchesSearch = ord.id.toLowerCase().includes(orderSearchVal.toLowerCase()) ||
+                                                (ord.address || "").toLowerCase().includes(orderSearchVal.toLowerCase());
+                          return matchesStatus && matchesSearch;
+                        });
+
+                        return (
+                          <div className="flex flex-col gap-5">
+                            {/* Analytics Breakdown Pills */}
+                            <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+                              <button
+                                onClick={() => setOrderStatusFilter(orderStatusFilter === "pending" ? "all" : "pending")}
+                                className={`p-3 rounded-xl border text-center transition-all flex flex-col gap-1 ${
+                                  orderStatusFilter === "pending"
+                                    ? "bg-amber-600 border-amber-600 text-white shadow-sm"
+                                    : "bg-amber-500/5 hover:bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20"
+                                }`}
+                              >
+                                <span className="text-[10px] font-bold uppercase tracking-wider">Pending</span>
+                                <span className="text-lg font-black">{pendingCount}</span>
+                              </button>
+
+                              <button
+                                onClick={() => setOrderStatusFilter(orderStatusFilter === "paid" ? "all" : "paid")}
+                                className={`p-3 rounded-xl border text-center transition-all flex flex-col gap-1 ${
+                                  orderStatusFilter === "paid"
+                                    ? "bg-blue-600 border-blue-600 text-white shadow-sm"
+                                    : "bg-blue-500/5 hover:bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20"
+                                }`}
+                              >
+                                <span className="text-[10px] font-bold uppercase tracking-wider">Paid</span>
+                                <span className="text-lg font-black">{paidCount}</span>
+                              </button>
+
+                              <button
+                                onClick={() => setOrderStatusFilter(orderStatusFilter === "shipped" ? "all" : "shipped")}
+                                className={`p-3 rounded-xl border text-center transition-all flex flex-col gap-1 ${
+                                  orderStatusFilter === "shipped"
+                                    ? "bg-purple-600 border-purple-600 text-white shadow-sm"
+                                    : "bg-purple-500/5 hover:bg-purple-500/10 text-purple-700 dark:text-purple-400 border-purple-500/20"
+                                }`}
+                              >
+                                <span className="text-[10px] font-bold uppercase tracking-wider">Shipped</span>
+                                <span className="text-lg font-black">{shippedCount}</span>
+                              </button>
+
+                              <button
+                                onClick={() => setOrderStatusFilter(orderStatusFilter === "delivered" ? "all" : "delivered")}
+                                className={`p-3 rounded-xl border text-center transition-all flex flex-col gap-1 ${
+                                  orderStatusFilter === "delivered"
+                                    ? "bg-emerald-600 border-emerald-600 text-white shadow-sm"
+                                    : "bg-emerald-500/5 hover:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20"
+                                }`}
+                              >
+                                <span className="text-[10px] font-bold uppercase tracking-wider">Delivered</span>
+                                <span className="text-lg font-black">{deliveredCount}</span>
+                              </button>
+
+                              <button
+                                onClick={() => setOrderStatusFilter(orderStatusFilter === "failed" ? "all" : "failed")}
+                                className={`p-3 rounded-xl border text-center transition-all flex flex-col gap-1 ${
+                                  orderStatusFilter === "failed"
+                                    ? "bg-red-600 border-red-600 text-white shadow-sm"
+                                    : "bg-red-500/5 hover:bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20"
+                                }`}
+                              >
+                                <span className="text-[10px] font-bold uppercase tracking-wider">Failed</span>
+                                <span className="text-lg font-black">{failedCount}</span>
+                              </button>
+                            </div>
+
+                            {/* Search and Filters Bar */}
+                            <div className="flex flex-col sm:flex-row gap-3 items-center bg-muted/20 p-3 rounded-2xl border border-border/40">
+                              <div className="relative w-full sm:flex-grow">
+                                <input
+                                  type="text"
+                                  placeholder="Search by Order ID or Address..."
+                                  value={orderSearchVal}
+                                  onChange={(e) => setOrderSearchVal(e.target.value)}
+                                  className="w-full px-3 py-1.5 rounded-lg border border-border bg-background text-xs text-foreground focus:outline-none"
+                                />
+                              </div>
+                              <div className="flex gap-2 w-full sm:w-auto">
                                 <select
-                                  value={ord.status}
-                                  onChange={(e) => handleUpdateOrderStatus(ord.id, e.target.value as Order["status"])}
-                                  className="text-xs bg-background border border-border p-1 rounded-md focus:outline-none"
+                                  value={orderStatusFilter}
+                                  onChange={(e) => setOrderStatusFilter(e.target.value)}
+                                  className="text-xs bg-background border border-border px-3 py-1.5 rounded-lg focus:outline-none font-semibold text-foreground w-full sm:w-auto"
                                 >
+                                  <option value="all">All Statuses</option>
                                   <option value="pending">Pending</option>
                                   <option value="paid">Paid</option>
                                   <option value="shipped">Shipped</option>
                                   <option value="delivered">Delivered</option>
                                   <option value="failed">Failed</option>
                                 </select>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
+                                {(orderStatusFilter !== "all" || orderSearchVal !== "") && (
+                                  <button
+                                    onClick={() => {
+                                      setOrderStatusFilter("all");
+                                      setOrderSearchVal("");
+                                    }}
+                                    className="px-3 py-1.5 border border-border hover:bg-muted text-xs font-bold rounded-lg whitespace-nowrap text-foreground bg-background"
+                                  >
+                                    Reset Filters
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+
+                            {/* Table */}
+                            {filteredOrders.length === 0 ? (
+                              <p className="text-xs text-muted-foreground italic py-8 text-center bg-card border border-border rounded-2xl">
+                                No matching orders found.
+                              </p>
+                            ) : (
+                              <div className="overflow-x-auto">
+                                <table className="w-full text-xs text-left border-collapse">
+                                  <thead>
+                                    <tr className="border-b border-border/60 text-muted-foreground font-bold uppercase tracking-wider">
+                                      <th className="py-3 px-2">Order ID</th>
+                                      <th className="py-3 px-2">Date</th>
+                                      <th className="py-3 px-2">Address</th>
+                                      <th className="py-3 px-2">Amount</th>
+                                      <th className="py-3 px-2">Status</th>
+                                      <th className="py-3 px-2 text-right">Action</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {filteredOrders.map((ord) => {
+                                      let statusBg = "bg-amber-500/10 text-amber-600 dark:text-amber-400";
+                                      if (ord.status === "paid") statusBg = "bg-blue-500/10 text-blue-600 dark:text-blue-400";
+                                      else if (ord.status === "shipped") statusBg = "bg-purple-500/10 text-purple-600 dark:text-purple-400";
+                                      else if (ord.status === "delivered") statusBg = "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400";
+                                      else if (ord.status === "failed") statusBg = "bg-red-500/10 text-red-600 dark:text-red-400";
+
+                                      return (
+                                        <React.Fragment key={ord.id}>
+                                          <tr className="border-b border-border/60 hover:bg-muted/10">
+                                            <td className="py-3.5 px-2 font-mono text-primary font-bold">
+                                              <button
+                                                onClick={() => setExpandedOrderId(expandedOrderId === ord.id ? null : ord.id)}
+                                                className="hover:underline flex items-center gap-1.5 focus:outline-none text-left"
+                                              >
+                                                {ord.id}
+                                                <span className="text-[10px] text-muted-foreground font-semibold">
+                                                  {expandedOrderId === ord.id ? "▲" : "▼"}
+                                                </span>
+                                              </button>
+                                            </td>
+                                            <td className="py-3.5 px-2 text-muted-foreground">
+                                              {new Date(ord.created_at).toLocaleDateString()}
+                                            </td>
+                                            <td className="py-3.5 px-2 max-w-[150px] truncate text-muted-foreground" title={ord.address}>
+                                              {ord.address}
+                                            </td>
+                                            <td className="py-3.5 px-2 font-extrabold text-foreground">₹{ord.amount.toFixed(2)}</td>
+                                            <td className="py-3.5 px-2">
+                                              <span className={`font-black uppercase text-[9px] px-2 py-0.5 rounded-full ${statusBg}`}>
+                                                {ord.status}
+                                              </span>
+                                            </td>
+                                            <td className="py-3.5 px-2 text-right">
+                                              <select
+                                                value={ord.status}
+                                                onChange={(e) => handleUpdateOrderStatus(ord.id, e.target.value as Order["status"])}
+                                                className="text-xs bg-background border border-border p-1 rounded-md focus:outline-none text-foreground font-semibold"
+                                              >
+                                                <option value="pending">Pending</option>
+                                                <option value="paid">Paid</option>
+                                                <option value="shipped">Shipped</option>
+                                                <option value="delivered">Delivered</option>
+                                                <option value="failed">Failed</option>
+                                              </select>
+                                            </td>
+                                          </tr>
+                                          {expandedOrderId === ord.id && (
+                                            <tr className="bg-muted/5 border-b border-border/40">
+                                              <td colSpan={6} className="p-4">
+                                                <div className="flex flex-col md:flex-row gap-6 justify-between bg-card border border-border/60 p-4 rounded-2xl shadow-inner">
+                                                  
+                                                  {/* Left side: Order Items */}
+                                                  <div className="flex flex-col gap-2.5 flex-grow">
+                                                    <h4 className="font-extrabold text-xs text-foreground uppercase tracking-wide">Order Items</h4>
+                                                    <div className="flex flex-col gap-2 border-t border-border/60 pt-2.5">
+                                                      {ord.items && ord.items.length > 0 ? (
+                                                        ord.items.map((item) => (
+                                                          <div key={item.id} className="flex justify-between items-center text-xs">
+                                                            <span className="font-bold text-foreground">
+                                                              {item.product?.name || "Premium Milky Mushrooms"}
+                                                              <span className="text-muted-foreground font-semibold ml-1.5">x{item.quantity}</span>
+                                                            </span>
+                                                            <span className="font-extrabold text-foreground">₹{(item.price * item.quantity).toFixed(2)}</span>
+                                                          </div>
+                                                        ))
+                                                      ) : (
+                                                        <span className="text-xs text-muted-foreground italic">No item details recorded.</span>
+                                                      )}
+                                                    </div>
+                                                    {ord.payment_id && (
+                                                      <div className="text-[10px] text-muted-foreground font-mono mt-2 pt-2 border-t border-border/40">
+                                                        Payment Ref: {ord.payment_id}
+                                                      </div>
+                                                    )}
+                                                  </div>
+
+                                                  {/* Right side: Tracking Progress */}
+                                                  <div className="flex flex-col gap-3 min-w-[250px] md:border-l md:border-border/60 md:pl-6">
+                                                    <h4 className="font-extrabold text-xs text-foreground uppercase tracking-wide">Tracking Status</h4>
+                                                    
+                                                    <div className="flex items-center justify-between text-[10px] text-muted-foreground font-bold mt-1">
+                                                      <span className="text-primary font-bold">Placed</span>
+                                                      <span className={(ord.status === "shipped" || ord.status === "delivered" || ord.status === "paid") ? "text-primary font-bold" : ""}>Paid</span>
+                                                      <span className={(ord.status === "shipped" || ord.status === "delivered") ? "text-primary font-bold" : ""}>Shipped</span>
+                                                      <span className={ord.status === "delivered" ? "text-primary font-bold" : ""}>Delivered</span>
+                                                    </div>
+
+                                                    <div className="w-full h-2 bg-muted border border-border/40 rounded-full overflow-hidden">
+                                                      <div
+                                                        className="h-full bg-primary transition-all duration-500"
+                                                        style={{
+                                                          width:
+                                                            ord.status === "delivered"
+                                                              ? "100%"
+                                                              : ord.status === "shipped"
+                                                                ? "75%"
+                                                                : (ord.status === "paid" || ord.status === "pending")
+                                                                  ? "50%"
+                                                                  : "25%",
+                                                        }}
+                                                      />
+                                                    </div>
+                                                    
+                                                    <div className="text-[10px] text-muted-foreground leading-normal mt-1 bg-muted/40 p-2 rounded-lg border border-border/30">
+                                                      <strong>Status:</strong> {ord.status.toUpperCase()}
+                                                      <p className="mt-0.5">Modify action status using the dropdown list selector.</p>
+                                                    </div>
+
+                                                  </div>
+
+                                                </div>
+                                              </td>
+                                            </tr>
+                                          )}
+                                        </React.Fragment>
+                                      );
+                                    })}
+                                  </tbody>
+                                </table>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })()}
+                    </>
                   )}
                 </div>
               )}
@@ -604,8 +840,47 @@ export default function AdminDashboardPage() {
                             <td className="py-2.5 px-2 font-bold text-foreground">{prod.name}</td>
                             <td className="py-2.5 px-2 text-muted-foreground">{prod.category}</td>
                             <td className="py-2.5 px-2 font-extrabold text-foreground">₹{prod.price.toFixed(2)}</td>
-                            <td className={`py-2.5 px-2 font-bold ${prod.stock < 10 ? "text-red-500" : "text-emerald-500"}`}>
-                              {prod.stock} units
+                            <td className="py-2.5 px-2">
+                              <div className="flex items-center gap-1">
+                                <button
+                                  type="button"
+                                  onClick={async () => {
+                                    const nextStock = Math.max(0, prod.stock - 1);
+                                    await productService.updateProductStock(prod.id, nextStock);
+                                    setProducts((prev) =>
+                                      prev.map((p) => (p.id === prod.id ? { ...p, stock: nextStock } : p))
+                                    );
+                                  }}
+                                  className="w-5 h-5 rounded bg-muted hover:bg-border text-foreground font-black text-[10px] flex items-center justify-center border border-border/40 focus:outline-none cursor-pointer"
+                                >
+                                  -
+                                </button>
+                                <input
+                                  type="number"
+                                  value={prod.stock}
+                                  onChange={async (e) => {
+                                    const nextStock = Math.max(0, parseInt(e.target.value) || 0);
+                                    await productService.updateProductStock(prod.id, nextStock);
+                                    setProducts((prev) =>
+                                      prev.map((p) => (p.id === prod.id ? { ...p, stock: nextStock } : p))
+                                    );
+                                  }}
+                                  className="w-10 text-center py-0.5 border border-border rounded text-[10px] bg-background text-foreground focus:outline-none font-bold"
+                                />
+                                <button
+                                  type="button"
+                                  onClick={async () => {
+                                    const nextStock = prod.stock + 1;
+                                    await productService.updateProductStock(prod.id, nextStock);
+                                    setProducts((prev) =>
+                                      prev.map((p) => (p.id === prod.id ? { ...p, stock: nextStock } : p))
+                                    );
+                                  }}
+                                  className="w-5 h-5 rounded bg-muted hover:bg-border text-foreground font-black text-[10px] flex items-center justify-center border border-border/40 focus:outline-none cursor-pointer"
+                                >
+                                  +
+                                </button>
+                              </div>
                             </td>
                             <td className="py-2.5 px-2 text-right">
                               <button

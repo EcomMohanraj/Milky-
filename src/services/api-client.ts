@@ -17,8 +17,15 @@ export const supabase = isSupabaseConfigured
 // Helper to get local storage helper in browser
 export const getLocalStorageItem = <T>(key: string, defaultValue: T): T => {
   if (typeof window === "undefined") return defaultValue;
-  const item = localStorage.getItem(key);
-  return item ? JSON.parse(item) : defaultValue;
+  try {
+    const item = localStorage.getItem(key);
+    if (!item || item === "undefined" || item === "null") return defaultValue;
+    const parsed = JSON.parse(item);
+    if (parsed === null || parsed === undefined) return defaultValue;
+    return parsed;
+  } catch {
+    return defaultValue;
+  }
 };
 
 export const setLocalStorageItem = <T>(key: string, value: T): void => {
