@@ -1,0 +1,8 @@
+{
+  "/manifest.webmanifest/route": "app/manifest.webmanifest/route.js",
+  "/(customer)/dashboard/page": "app/(customer)/dashboard/page.js",
+  "/(public)/track-order/page": "app/(public)/track-order/page.js",
+  "/(admin)/admin/analytics/page": "app/(admin)/admin/analytics/page.js",
+  "/(admin)/admin/customers/page": "app/(admin)/admin/customers/page.js",
+  "/(admin)/admin/orders/page": "app/(admin)/admin/orders/page.js"
+}
