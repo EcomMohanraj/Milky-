@@ -11,9 +11,6 @@ import {
   User as UserIcon,
   ShoppingBag,
   MapPin,
-  Lock,
-  Mail,
-  Phone,
   Plus,
   Trash2,
   CheckCircle,
@@ -27,19 +24,6 @@ import { orderService } from "@/services/order.service";
 import { Address, Order } from "@/types";
 import { useToast } from "@/components/ui/toast-simple";
 
-// Auth validation schemas
-const loginSchema = z.object({
-  email: z.string().email({ message: "Invalid email address." }),
-  password: z.string().min(4, { message: "Password must be at least 4 characters." }),
-});
-
-const registerSchema = z.object({
-  name: z.string().min(2, { message: "Name must be at least 2 characters." }),
-  email: z.string().email({ message: "Invalid email address." }),
-  phone: z.string().min(10, { message: "Phone must be at least 10 digits." }),
-  password: z.string().min(4, { message: "Password must be at least 4 characters." }),
-});
-
 const addressSchema = z.object({
   address: z.string().min(5, { message: "Address must be at least 5 characters." }),
   city: z.string().min(2, { message: "City must be at least 2 characters." }),
@@ -47,18 +31,15 @@ const addressSchema = z.object({
   is_default: z.boolean(),
 });
 
-type LoginFormValues = z.infer<typeof loginSchema>;
-type RegisterFormValues = z.infer<typeof registerSchema>;
 type AddressFormValues = z.infer<typeof addressSchema>;
 
 function DashboardContent() {
   const searchParams = useSearchParams();
-  const { user, loading: authLoading, login, register: signUp, updateProfile } = useAuth();
+  const { user, loading: authLoading, updateProfile } = useAuth();
   const { cart, cartTotal, clearCart } = useCart();
   const { toast } = useToast();
 
   const [activeTab, setActiveTab] = useState<"profile" | "orders" | "addresses">("orders");
-  const [isRegistering, setIsRegistering] = useState(false);
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [loadingData, setLoadingData] = useState(false);
@@ -76,10 +57,6 @@ function DashboardContent() {
   const [selectedAddressId, setSelectedAddressId] = useState<string>("");
   const [placingOrder, setPlacingOrder] = useState(false);
   const [orderSuccess, setOrderSuccess] = useState<Order | null>(null);
-
-  // React Hook Form hooks
-  const loginForm = useForm<LoginFormValues>({ resolver: zodResolver(loginSchema) });
-  const registerForm = useForm<RegisterFormValues>({ resolver: zodResolver(registerSchema) });
   const addressForm = useForm<AddressFormValues>({
     resolver: zodResolver(addressSchema),
     defaultValues: {
@@ -131,31 +108,7 @@ function DashboardContent() {
     }
   }, [searchParams, cart]);
 
-  const handleLogin = async (values: LoginFormValues) => {
-    try {
-      const res = await login(values.email, values.password);
-      if (res.success) {
-        toast({ title: "Welcome back!", description: "Successfully logged in." });
-      } else {
-        toast({ title: "Authentication Failed", description: res.error || "Wrong email/password", variant: "destructive" });
-      }
-    } catch (err) {
-      console.error(err);
-    }
-  };
 
-  const handleRegister = async (values: RegisterFormValues) => {
-    try {
-      const res = await signUp(values.name, values.email, values.phone, values.password);
-      if (res.success) {
-        toast({ title: "Account Created!", description: "Successfully registered and logged in.", variant: "success" });
-      } else {
-        toast({ title: "Registration Failed", description: res.error || "Email already in use.", variant: "destructive" });
-      }
-    } catch (err) {
-      console.error(err);
-    }
-  };
 
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -353,156 +306,9 @@ function DashboardContent() {
     );
   }
 
-  // GUEST FLOW (Login / Register Form)
+  // Backup guard if middleware isn't active
   if (!user) {
-    return (
-      <div className="container mx-auto px-4 py-16 flex-grow flex items-center justify-center">
-        <div className="bg-card border border-border/80 w-full max-w-md p-6 md:p-8 rounded-3xl shadow-lg">
-          <div className="text-center mb-6">
-            <span className="text-xs font-black uppercase tracking-wider text-primary">Secure Access</span>
-            <h1 className="text-2xl md:text-3xl font-extrabold text-foreground font-outfit mt-1">
-              {isRegistering ? "Create Account" : "Welcome Back"}
-            </h1>
-            <p className="text-xs text-muted-foreground mt-1">
-              {isRegistering ? "Join Milky Mushrooms to order fresh farm harvest" : "Sign in to manage addresses and orders"}
-            </p>
-          </div>
-
-          {isRegistering ? (
-            /* Register Form */
-            <form onSubmit={registerForm.handleSubmit(handleRegister)} className="flex flex-col gap-4">
-              <div className="flex flex-col gap-1">
-                <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Full Name</label>
-                <div className="relative">
-                  <UserIcon className="absolute left-3 top-3 h-4.5 w-4.5 text-muted-foreground" />
-                  <input
-                    type="text"
-                    placeholder="Enter your name"
-                    {...registerForm.register("name")}
-                    className="w-full pl-10 pr-3 py-2 border border-border rounded-lg text-xs bg-background focus:outline-none"
-                  />
-                </div>
-                {registerForm.formState.errors.name && (
-                  <span className="text-[10px] text-red-500">{registerForm.formState.errors.name.message}</span>
-                )}
-              </div>
-
-              <div className="flex flex-col gap-1">
-                <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Email</label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-3 h-4.5 w-4.5 text-muted-foreground" />
-                  <input
-                    type="email"
-                    placeholder="name@email.com"
-                    {...registerForm.register("email")}
-                    className="w-full pl-10 pr-3 py-2 border border-border rounded-lg text-xs bg-background focus:outline-none"
-                  />
-                </div>
-                {registerForm.formState.errors.email && (
-                  <span className="text-[10px] text-red-500">{registerForm.formState.errors.email.message}</span>
-                )}
-              </div>
-
-              <div className="flex flex-col gap-1">
-                <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Phone Number</label>
-                <div className="relative">
-                  <Phone className="absolute left-3 top-3 h-4.5 w-4.5 text-muted-foreground" />
-                  <input
-                    type="text"
-                    placeholder="Mobile number"
-                    {...registerForm.register("phone")}
-                    className="w-full pl-10 pr-3 py-2 border border-border rounded-lg text-xs bg-background focus:outline-none"
-                  />
-                </div>
-                {registerForm.formState.errors.phone && (
-                  <span className="text-[10px] text-red-500">{registerForm.formState.errors.phone.message}</span>
-                )}
-              </div>
-
-              <div className="flex flex-col gap-1">
-                <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Password</label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-3 h-4.5 w-4.5 text-muted-foreground" />
-                  <input
-                    type="password"
-                    placeholder="Min 4 characters"
-                    {...registerForm.register("password")}
-                    className="w-full pl-10 pr-3 py-2 border border-border rounded-lg text-xs bg-background focus:outline-none"
-                  />
-                </div>
-                {registerForm.formState.errors.password && (
-                  <span className="text-[10px] text-red-500">{registerForm.formState.errors.password.message}</span>
-                )}
-              </div>
-
-              <button
-                type="submit"
-                className="w-full py-2.5 bg-primary text-primary-foreground font-bold text-xs rounded-lg hover:bg-primary/95 transition-all shadow-md mt-2"
-              >
-                Create Account
-              </button>
-            </form>
-          ) : (
-            /* Login Form */
-            <form onSubmit={loginForm.handleSubmit(handleLogin)} className="flex flex-col gap-4">
-              <div className="flex flex-col gap-1">
-                <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Email</label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-3 h-4.5 w-4.5 text-muted-foreground" />
-                  <input
-                    type="email"
-                    placeholder="name@email.com"
-                    {...loginForm.register("email")}
-                    className="w-full pl-10 pr-3 py-2 border border-border rounded-lg text-xs bg-background focus:outline-none"
-                  />
-                </div>
-                {loginForm.formState.errors.email && (
-                  <span className="text-[10px] text-red-500">{loginForm.formState.errors.email.message}</span>
-                )}
-              </div>
-
-              <div className="flex flex-col gap-1">
-                <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Password</label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-3 h-4.5 w-4.5 text-muted-foreground" />
-                  <input
-                    type="password"
-                    placeholder="Password"
-                    {...loginForm.register("password")}
-                    className="w-full pl-10 pr-3 py-2 border border-border rounded-lg text-xs bg-background focus:outline-none"
-                  />
-                </div>
-                {loginForm.formState.errors.password && (
-                  <span className="text-[10px] text-red-500">{loginForm.formState.errors.password.message}</span>
-                )}
-              </div>
-
-              <button
-                type="submit"
-                className="w-full py-2.5 bg-primary text-primary-foreground font-bold text-xs rounded-lg hover:bg-primary/95 transition-all shadow-md mt-2"
-              >
-                Sign In
-              </button>
-
-              <div className="p-3 bg-muted/40 rounded-lg text-[10px] text-muted-foreground leading-normal mt-2">
-                <strong>Local Test Credentials:</strong><br />
-                - Admin: <code className="font-semibold text-primary">admin@milky.com</code> (pw: any)<br />
-                - Customer: <code className="font-semibold text-primary">customer@gmail.com</code> (pw: any)
-              </div>
-            </form>
-          )}
-
-          <div className="text-center mt-6 pt-4 border-t border-border/60">
-            <button
-              onClick={() => setIsRegistering(!isRegistering)}
-              className="text-xs font-semibold text-primary hover:underline"
-            >
-              {isRegistering ? "Already have an account? Sign In" : "Don't have an account? Sign Up"}
-            </button>
-          </div>
-        </div>
-      </div>
-    );
+    return null;
   }
 
   // ORDER SUCCESS SCREEN
