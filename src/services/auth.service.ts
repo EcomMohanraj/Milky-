@@ -1,28 +1,34 @@
 import { User } from "@/types";
-import { supabase, isSupabaseConfigured } from "./api-client";
 
 export const authService = {
-  async getUserProfile(userId: string): Promise<User | null> {
-    if (isSupabaseConfigured && supabase) {
-      const { data, error } = await supabase
-        .from("users")
-        .select("*")
-        .eq("id", userId)
-        .single();
-      if (!error && data) return data as User;
+  async getUserProfile(_userId: string): Promise<User | null> {
+    try {
+      const res = await fetch("/api/auth/me");
+      if (!res.ok) return null;
+      const data = await res.json();
+      return data.user as User;
+    } catch (err) {
+      console.error("getUserProfile fetch error:", err);
+      return null;
     }
-    return null;
   },
 
   async updateUserProfile(userId: string, name: string, phone: string): Promise<{ success: boolean; error?: string }> {
-    if (isSupabaseConfigured && supabase) {
-      const { error } = await supabase
-        .from("users")
-        .update({ name, phone })
-        .eq("id", userId);
-      if (error) return { success: false, error: error.message };
+    try {
+      const res = await fetch("/api/auth/update-profile", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, phone }),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        return { success: false, error: data.error || "Failed to update profile." };
+      }
       return { success: true };
+    } catch (err) {
+      console.error("updateUserProfile fetch error:", err);
+      const message = err instanceof Error ? err.message : "Failed to update profile.";
+      return { success: false, error: message };
     }
-    return { success: true }; // Managed in mock localStorage state inside context if not configured
   }
 };
