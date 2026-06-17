@@ -1,6 +1,4 @@
-import { Order, OrderItem, Address } from "@/types";
-import { supabase, isSupabaseConfigured, getLocalStorageItem, setLocalStorageItem } from "./api-client";
-import { SEED_PRODUCTS, productService } from "./product.service";
+import { Order, Address } from "@/types";
 
 export const orderService = {
   // ORDERS
@@ -8,156 +6,94 @@ export const orderService = {
     order: Omit<Order, "id" | "created_at">,
     items: { product_id: string; quantity: number; price: number }[]
   ): Promise<Order> {
-    const newOrder: Order = {
-      ...order,
-      id: "ord-" + Math.random().toString(36).substr(2, 9),
-      created_at: new Date().toISOString(),
-    };
+    const res = await fetch("/api/orders", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        amount: order.amount,
+        status: order.status,
+        payment_id: order.payment_id,
+        address: order.address,
+        items
+      })
+    });
 
-    if (isSupabaseConfigured && supabase) {
-      try {
-        const { data, error } = await supabase
-          .from("orders")
-          .insert(newOrder)
-          .select()
-          .single();
-        if (!error && data) {
-          const orderItems = items.map((item) => ({
-            ...item,
-            order_id: data.id,
-          }));
-          await supabase.from("order_items").insert(orderItems);
-          return { ...data, items: orderItems } as Order;
-        }
-        console.warn("Supabase createOrder returned error, falling back to local: ", error);
-      } catch (err) {
-        console.error("Supabase createOrder failed, falling back: ", err);
-      }
+    if (!res.ok) {
+      const errData = await res.json();
+      throw new Error(errData.error || "Failed to create order.");
     }
 
-    // Mock
-    const orders = getLocalStorageItem<Order[]>("milky_orders", []);
-    const products = getLocalStorageItem("milky_products", SEED_PRODUCTS);
-
-    const populatedItems: OrderItem[] = items.map((item) => ({
-      id: "item-" + Math.random().toString(36).substr(2, 9),
-      order_id: newOrder.id,
-      product_id: item.product_id,
-      quantity: item.quantity,
-      price: item.price,
-      product: products.find((p) => p.id === item.product_id),
-    }));
-
-    const completeOrder = { ...newOrder, items: populatedItems };
-    orders.push(completeOrder);
-    setLocalStorageItem("milky_orders", orders);
-
-    // Update stock in mock DB
-    for (const item of items) {
-      const prod = products.find((p) => p.id === item.product_id);
-      if (prod) {
-        await productService.updateProductStock(prod.id, Math.max(0, prod.stock - item.quantity));
-      }
-    }
-
-    return completeOrder;
+    const data = await res.json();
+    return data.order as Order;
   },
 
-  async getOrders(userId?: string): Promise<Order[]> {
-    if (isSupabaseConfigured && supabase && userId) {
-      try {
-        const { data, error } = await supabase
-          .from("orders")
-          .select("*, order_items(*, products(*))")
-          .eq("user_id", userId)
-          .order("created_at", { ascending: false });
-        if (!error && data) return data as Order[];
-        console.warn("Supabase getOrders returned error, falling back to local: ", error);
-      } catch (err) {
-        console.error("Supabase getOrders failed, falling back: ", err);
-      }
+  async getOrders(_userId?: string): Promise<Order[]> {
+    try {
+      const res = await fetch("/api/orders");
+      if (!res.ok) return [];
+      const data = await res.json();
+      return data.orders as Order[];
+    } catch (err) {
+      console.error("getOrders error:", err);
+      return [];
     }
-    const orders = getLocalStorageItem<Order[]>("milky_orders", []);
-    if (userId) {
-      return orders.filter((o) => o.user_id === userId).sort((a,b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-    }
-    return orders.sort((a,b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
   },
 
   async updateOrderStatus(orderId: string, status: Order["status"]): Promise<void> {
-    if (isSupabaseConfigured && supabase) {
-      try {
-        const { error } = await supabase.from("orders").update({ status }).eq("id", orderId);
-        if (!error) return;
-        console.warn("Supabase updateOrderStatus returned error, falling back to local: ", error);
-      } catch (err) {
-        console.error("Supabase updateOrderStatus failed, falling back: ", err);
-      }
+    const res = await fetch(`/api/orders/${orderId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status })
+    });
+
+    if (!res.ok) {
+      const errData = await res.json();
+      throw new Error(errData.error || "Failed to update order status.");
     }
-    const orders = getLocalStorageItem<Order[]>("milky_orders", []);
-    const updated = orders.map((o) => (o.id === orderId ? { ...o, status } : o));
-    setLocalStorageItem("milky_orders", updated);
   },
 
   // ADDRESSES
-  async getAddresses(userId: string): Promise<Address[]> {
-    if (isSupabaseConfigured && supabase) {
-      try {
-        const { data, error } = await supabase
-          .from("addresses")
-          .select("*")
-          .eq("user_id", userId);
-        if (!error && data) return data as Address[];
-        console.warn("Supabase getAddresses returned error, falling back to local: ", error);
-      } catch (err) {
-        console.error("Supabase getAddresses failed, falling back: ", err);
-      }
+  async getAddresses(_userId: string): Promise<Address[]> {
+    try {
+      const res = await fetch("/api/addresses");
+      if (!res.ok) return [];
+      const data = await res.json();
+      return data.addresses as Address[];
+    } catch (err) {
+      console.error("getAddresses error:", err);
+      return [];
     }
-    const addresses = getLocalStorageItem<Address[]>("milky_addresses", []);
-    return addresses.filter((a) => a.user_id === userId);
   },
 
   async createAddress(address: Omit<Address, "id">): Promise<Address> {
-    const newAddress: Address = {
-      ...address,
-      id: "addr-" + Math.random().toString(36).substr(2, 9),
-    };
-    if (isSupabaseConfigured && supabase) {
-      try {
-        const { data, error } = await supabase
-          .from("addresses")
-          .insert(newAddress)
-          .select()
-          .single();
-        if (!error && data) return data as Address;
-        console.warn("Supabase createAddress returned error, falling back to local: ", error);
-      } catch (err) {
-        console.error("Supabase createAddress failed, falling back: ", err);
-      }
+    const res = await fetch("/api/addresses", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        address: address.address,
+        city: address.city,
+        pincode: address.pincode,
+        is_default: address.is_default
+      })
+    });
+
+    if (!res.ok) {
+      const errData = await res.json();
+      throw new Error(errData.error || "Failed to create address.");
     }
-    const addresses = getLocalStorageItem<Address[]>("milky_addresses", []);
-    if (newAddress.is_default) {
-      addresses.forEach((a) => {
-        if (a.user_id === newAddress.user_id) a.is_default = false;
-      });
-    }
-    addresses.push(newAddress);
-    setLocalStorageItem("milky_addresses", addresses);
-    return newAddress;
+
+    const data = await res.json();
+    return data.address as Address;
   },
 
   async deleteAddress(addressId: string): Promise<void> {
-    if (isSupabaseConfigured && supabase) {
-      try {
-        const { error } = await supabase.from("addresses").delete().eq("id", addressId);
-        if (!error) return;
-        console.warn("Supabase deleteAddress returned error, falling back to local: ", error);
-      } catch (err) {
-        console.error("Supabase deleteAddress failed, falling back: ", err);
-      }
+    const res = await fetch(`/api/addresses/${addressId}`, {
+      method: "DELETE"
+    });
+
+    if (!res.ok) {
+      const errData = await res.json();
+      throw new Error(errData.error || "Failed to delete address.");
     }
-    const addresses = getLocalStorageItem<Address[]>("milky_addresses", []);
-    const filtered = addresses.filter((a) => a.id !== addressId);
-    setLocalStorageItem("milky_addresses", filtered);
   },
 };
