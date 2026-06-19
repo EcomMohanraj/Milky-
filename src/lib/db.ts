@@ -1,5 +1,8 @@
-import { Pool } from "pg";
+import { Pool, types } from "pg";
 import bcrypt from "bcrypt";
+
+// Automatically parse NUMERIC(10,2) fields (OID 1700) as floats
+types.setTypeParser(1700, (val) => parseFloat(val));
 
 let pool: Pool | null = null;
 
