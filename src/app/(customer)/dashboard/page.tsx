@@ -1,6 +1,4 @@
 "use client";
-
-
 import React, { useEffect, useState, Suspense, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
