@@ -1,5 +1,5 @@
 import { Pool, types } from "pg";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 
 // Automatically parse NUMERIC(10,2) fields (OID 1700) as floats
 types.setTypeParser(1700, (val) => parseFloat(val));
@@ -127,8 +127,9 @@ export const initDb = async () => {
     // Remove foreign keys linking to Supabase auth schema if they exist
     try {
       await query(`ALTER TABLE public.users DROP CONSTRAINT IF EXISTS users_id_fkey;`);
-    } catch {
-      // Ignored if constraint doesn't exist
+      await query(`ALTER TABLE public.users ALTER COLUMN id SET DEFAULT gen_random_uuid();`);
+    } catch (e) {
+      console.error("Failed to alter users table constraints/defaults:", e);
     }
 
     // 3. Seed default admin and customer if not present
