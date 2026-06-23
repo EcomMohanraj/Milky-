@@ -117,11 +117,16 @@ export const initDb = async () => {
       );
     `);
 
-    // 2. Safely alter tables to support credentials and verification if already created by schema.sql
+    // 2. Safely alter tables to support credentials, verification, and missing columns
     await query(`
+      ALTER TABLE public.users ADD COLUMN IF NOT EXISTS phone TEXT;
       ALTER TABLE public.users ADD COLUMN IF NOT EXISTS password_hash TEXT;
       ALTER TABLE public.users ADD COLUMN IF NOT EXISTS is_verified BOOLEAN DEFAULT FALSE;
       ALTER TABLE public.users ADD COLUMN IF NOT EXISTS verification_token TEXT;
+    `);
+
+    await query(`
+      ALTER TABLE public.products ADD COLUMN IF NOT EXISTS category TEXT;
     `);
 
     // Remove foreign keys linking to Supabase auth schema if they exist
@@ -160,7 +165,7 @@ export const initDb = async () => {
         name: "Premium Fresh Milky Mushrooms",
         slug: "premium-fresh-milky-mushrooms",
         description: "Freshly harvested organic Milky Mushrooms (Calocybe indica) directly from our farm beds. These mushrooms are known for their firm, meaty texture, milky white appearance, and long shelf life. Perfect for stir-fries, soups, and curries.",
-        image: "https://images.unsplash.com/photo-1535254973040-607b474cb50d?auto=format&fit=crop&q=80&w=600",
+        image: "/images/fresh_milky_mushrooms.png",
         price: 240.0,
         stock: 100,
         category: "Fresh",

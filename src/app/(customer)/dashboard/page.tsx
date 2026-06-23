@@ -240,7 +240,7 @@ function DashboardContent() {
         currency: "INR",
         name: "Milky Mushrooms",
         description: "Fresh Farm Mushrooms Purchase",
-        image: "https://images.unsplash.com/photo-1535254973040-607b474cb50d?auto=format&fit=crop&q=80&w=100",
+        image: "/images/fresh_milky_mushrooms.png",
         handler: async function (response: { razorpay_payment_id: string }) {
           try {
             const newOrder = await orderService.createOrder(
