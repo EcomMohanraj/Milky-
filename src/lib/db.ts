@@ -14,6 +14,14 @@ export const getDbPool = () => {
     }
     pool = new Pool({
       connectionString,
+      max: 4, // Limit pool connections in serverless containers
+      idleTimeoutMillis: 30000,
+      connectionTimeoutMillis: 5000,
+    });
+
+    // Prevent unhandled pg errors from crashing the Node/Next.js serverless process
+    pool.on("error", (err) => {
+      console.error("Unexpected error on idle database client:", err);
     });
   }
   return pool;
