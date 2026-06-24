@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState, Suspense, useCallback } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -33,6 +33,7 @@ type AddressFormValues = z.infer<typeof addressSchema>;
 
 function DashboardContent() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const { user, loading: authLoading, updateProfile } = useAuth();
   const { cart, cartTotal, clearCart } = useCart();
   const { toast } = useToast();
@@ -64,6 +65,13 @@ function DashboardContent() {
       is_default: false,
     },
   });
+
+  // Redirect unauthorized users to login
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.push("/login");
+    }
+  }, [user, authLoading, router]);
 
   const loadUserData = useCallback(async () => {
     if (!user) return;

@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState, use } from "react";
 import Image from "next/image";
+import { getProductImageUrl } from "@/lib/image";
 import Link from "next/link";
 import { ArrowLeft, ShoppingCart, ShieldCheck, Heart, Star, Sparkles, MessageSquare } from "lucide-react";
 import { productService } from "@/services/product.service";
@@ -144,7 +145,7 @@ export default function ProductDetailsPage({ params }: PageProps) {
         {/* Product Image Section */}
         <div className="relative aspect-square w-full rounded-3xl overflow-hidden border border-border shadow-md bg-secondary">
           <Image
-            src={product.image}
+            src={getProductImageUrl(product.image)}
             alt={product.name}
             fill
             className="object-cover"

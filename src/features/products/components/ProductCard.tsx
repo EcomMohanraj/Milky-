@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
+import { getProductImageUrl } from "@/lib/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { ShoppingCart, Eye, Heart, ShieldAlert } from "lucide-react";
@@ -33,7 +34,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         {/* Product Image Wrapper */}
         <div className="relative aspect-square w-full bg-secondary overflow-hidden">
           <Image
-            src={product.image}
+            src={getProductImageUrl(product.image)}
             alt={product.name}
             fill
             className="object-cover group-hover:scale-105 transition-transform duration-500"

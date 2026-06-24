@@ -179,7 +179,7 @@ export const Header: React.FC<HeaderProps> = ({ onCartToggle }) => {
               </>
             ) : (
               <Link
-                href="/dashboard"
+                href="/login"
                 className="hidden sm:flex items-center gap-1.5 px-4 py-2 bg-primary text-primary-foreground text-sm font-semibold rounded-lg hover:bg-primary/95 transition-colors shadow-sm"
               >
                 <UserIcon className="h-4 w-4" />
@@ -224,7 +224,7 @@ export const Header: React.FC<HeaderProps> = ({ onCartToggle }) => {
               ))}
               {!user && (
                 <Link
-                  href="/dashboard"
+                  href="/login"
                   onClick={handleLinkClick}
                   className="flex items-center justify-center gap-1.5 w-full py-2.5 bg-primary text-primary-foreground font-semibold rounded-lg"
                 >
