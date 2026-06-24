@@ -293,14 +293,9 @@ function LoginContent() {
                 >
                   {loading ? "Signing In..." : "Sign In"}
                 </button>
-
-                <div className="p-3 bg-muted/40 rounded-lg text-[10px] text-muted-foreground leading-normal mt-2">
-                  <strong>Local Database Verification Test Credentials:</strong><br />
-                  - Admin: <code className="font-semibold text-primary">admin@milky.com</code> (pw: password)<br />
-                  - Customer: <code className="font-semibold text-primary">customer@gmail.com</code> (pw: password)
-                </div>
               </form>
             )}
+
 
             <div className="text-center mt-6 pt-4 border-t border-border/60">
               <button
