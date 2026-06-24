@@ -131,30 +131,7 @@ const loadMockDb = (): MockDb => {
   // Initialize with seed data
   const hashedPw = bcrypt.hashSync("password", 10);
   const data: MockDb = {
-    users: [
-      {
-        id: "11111111-1111-1111-1111-111111111111",
-        name: "Milky Mushrooms Admin",
-        email: "admin@milky.com",
-        phone: "+91 86107 55195",
-        role: "admin",
-        password_hash: hashedPw,
-        is_verified: true,
-        verification_token: null,
-        created_at: new Date().toISOString()
-      },
-      {
-        id: "22222222-2222-2222-2222-222222222222",
-        name: "Mohan Kumar",
-        email: "customer@gmail.com",
-        phone: "+91 99887 76655",
-        role: "customer",
-        password_hash: hashedPw,
-        is_verified: true,
-        verification_token: null,
-        created_at: new Date().toISOString()
-      }
-    ],
+    users: [],
     products: [
       {
         id: "33333333-3333-3333-3333-333333333331",
