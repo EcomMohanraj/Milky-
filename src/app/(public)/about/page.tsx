@@ -36,7 +36,7 @@ export default function AboutFarmPage() {
   ];
 
   const galleryImages = [
-    "https://images.unsplash.com/photo-1535254973040-607b474cb50d?auto=format&fit=crop&q=80&w=600",
+    "/images/fresh_milky_mushrooms.png",
     "https://images.unsplash.com/photo-1511289081367-46c54b5f4ea7?auto=format&fit=crop&q=80&w=600",
     "https://images.unsplash.com/photo-1504387828074-ab75684db3ff?auto=format&fit=crop&q=80&w=600",
     "https://images.unsplash.com/photo-1608797178974-15b35a61d121?auto=format&fit=crop&q=80&w=600",

@@ -29,7 +29,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // Redirect authenticated users trying to access login
-  if (pathname.startsWith("/login") && token) {
+  if (pathname === "/login" && token) {
     const secret = process.env.SESSION_SECRET || "milky-mushrooms-super-secret-key-15803d-green";
     const decoded = await verifyJwt(token, secret);
     if (decoded) {

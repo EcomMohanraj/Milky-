@@ -213,7 +213,7 @@ VALUES
   'Premium Fresh Milky Mushrooms',
   'premium-fresh-milky-mushrooms',
   'Freshly harvested organic Milky Mushrooms (Calocybe indica) directly from our farm beds. These mushrooms are known for their firm, meaty texture, milky white appearance, and long shelf life. Perfect for stir-fries, soups, and curries.',
-  'https://images.unsplash.com/photo-1535254973040-607b474cb50d?auto=format&fit=crop&q=80&w=600',
+  '/images/fresh_milky_mushrooms.png',
   240.00,
   100,
   'Fresh',

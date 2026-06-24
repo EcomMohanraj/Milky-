@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
+import { getProductImageUrl } from "@/lib/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, ShoppingCart, Plus, Minus, ShieldCheck, Heart } from "lucide-react";
 import { Product } from "@/types";
@@ -68,7 +69,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
               {/* Product Image Section */}
               <div className="w-full md:w-1/2 relative min-h-[250px] md:min-h-[400px] bg-secondary">
                 <Image
-                  src={product.image}
+                  src={getProductImageUrl(product.image)}
                   alt={product.name}
                   fill
                   className="object-cover"

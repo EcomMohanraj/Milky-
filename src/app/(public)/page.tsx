@@ -204,7 +204,7 @@ export default function HomePage() {
             className="relative h-[320px] md:h-[480px] rounded-3xl overflow-hidden shadow-2xl border-4 border-card bg-secondary/30"
           >
             <Image
-              src="https://images.unsplash.com/photo-1535254973040-607b474cb50d?auto=format&fit=crop&q=80&w=800"
+              src="/images/fresh_milky_mushrooms.png"
               alt="Fresh organic milky mushrooms on farm"
               fill
               className="object-cover"

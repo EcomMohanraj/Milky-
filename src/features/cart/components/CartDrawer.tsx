@@ -3,6 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { getProductImageUrl } from "@/lib/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Trash2, Plus, Minus, ShoppingBag } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
@@ -81,7 +82,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose, onCheck
                     {/* Product Image */}
                     <div className="w-20 h-20 relative rounded-lg overflow-hidden shrink-0 bg-secondary">
                       <Image
-                        src={item.product.image}
+                        src={getProductImageUrl(item.product.image)}
                         alt={item.product.name}
                         fill
                         className="object-cover"

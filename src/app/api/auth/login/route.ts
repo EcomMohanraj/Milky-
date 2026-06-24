@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { query, initDb } from "@/lib/db";
 import { signJwt } from "@/lib/jwt";
 import { cookies } from "next/headers";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 
 export async function POST(request: Request) {
   try {

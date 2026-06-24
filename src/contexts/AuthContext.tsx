@@ -29,6 +29,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           if (data.user) {
             setUser(data.user as User);
           }
+        } else {
+          // If we got a 401/404/etc, we should clear the invalid/expired token cookie
+          await fetch("/api/auth/logout", { method: "POST" });
         }
       } catch (err) {
         console.error("Session load error: ", err);

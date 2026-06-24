@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
+import { getProductImageUrl } from "@/lib/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { Clock, Search, X, ChefHat, BookOpen } from "lucide-react";
 import { productService } from "@/services/product.service";
@@ -115,7 +116,7 @@ export default function RecipesPage() {
                 {/* Image */}
                 <div className="relative aspect-[4/3] w-full bg-secondary overflow-hidden">
                   <Image
-                    src={recipe.image}
+                    src={getProductImageUrl(recipe.image)}
                     alt={recipe.title}
                     fill
                     className="object-cover group-hover:scale-102 transition-transform duration-500"
@@ -185,7 +186,7 @@ export default function RecipesPage() {
                 {/* Banner Image */}
                 <div className="relative h-[200px] w-full shrink-0 bg-secondary">
                   <Image
-                    src={selectedRecipe.image}
+                    src={getProductImageUrl(selectedRecipe.image)}
                     alt={selectedRecipe.title}
                     fill
                     className="object-cover"
