@@ -16,6 +16,7 @@ function ShopContent() {
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   // States for filters
   const [searchQuery, setSearchQuery] = useState("");
@@ -29,11 +30,20 @@ function ShopContent() {
   useEffect(() => {
     const loadData = async () => {
       try {
-        const data = await productService.getProducts();
-        setProducts(data);
-        setFilteredProducts(data);
-      } catch (err) {
+        const res = await fetch("/api/products");
+        if (!res.ok) {
+          const text = await res.text();
+          throw new Error(`API returned status ${res.status}: ${text.slice(0, 100)}`);
+        }
+        const data = await res.json();
+        if (!data.products) {
+          throw new Error("API response did not contain products array.");
+        }
+        setProducts(data.products);
+        setFilteredProducts(data.products);
+      } catch (err: any) {
         console.error("Failed to load products: ", err);
+        setErrorMsg(err.message || String(err));
       } finally {
         setLoading(false);
       }
@@ -206,7 +216,12 @@ function ShopContent() {
 
         {/* Main Grid */}
         <div className="lg:col-span-3 flex-grow">
-          {loading ? (
+          {errorMsg ? (
+            <div className="bg-red-50 border border-red-200 text-red-700 rounded-2xl p-6 text-center">
+              <h3 className="font-extrabold text-sm uppercase tracking-wider mb-2">Error Loading Catalogue</h3>
+              <p className="text-xs">{errorMsg}</p>
+            </div>
+          ) : loading ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {[1, 2, 3, 4].map((n) => (
                 <div

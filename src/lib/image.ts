@@ -10,7 +10,10 @@ export function getProductImageUrl(imagePath: string | null | undefined): string
   }
   
   // Construct Supabase public storage URL
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://mock-project.supabase.co";
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
+  if (!supabaseUrl) {
+    return "/images/fresh_milky_mushrooms.png";
+  }
   
   // Clean up supabaseUrl (remove trailing slash if present)
   const baseUrl = supabaseUrl.endsWith("/") ? supabaseUrl.slice(0, -1) : supabaseUrl;
