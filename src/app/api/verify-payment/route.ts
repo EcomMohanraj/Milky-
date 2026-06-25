@@ -62,6 +62,9 @@ export async function POST(request: Request) {
           const orderIdShort = order.id.substring(0, 8);
           const apiKey = process.env.RESEND_API_KEY;
 
+          console.log("EMAIL DEBUG: customer email =", customerEmail);
+          console.log("EMAIL DEBUG: RESEND_API_KEY present =", !!process.env.RESEND_API_KEY);
+
           if (apiKey) {
             const itemsHtml = items
               .map(
@@ -123,13 +126,17 @@ export async function POST(request: Request) {
             `;
 
             const resend = new Resend(apiKey);
-            await resend.emails.send({
-              from: "onboarding@resend.dev",
-              to: customerEmail,
-              subject: `Order Confirmed - Milky Mushrooms #${orderIdShort}`,
-              html: emailHtml
-            });
-            console.log(`Order confirmation email sent successfully to ${customerEmail} for order ${order_id}`);
+            try {
+              const emailResult = await resend.emails.send({
+                from: "onboarding@resend.dev",
+                to: customerEmail,
+                subject: `Order Confirmed - Milky Mushrooms #${orderIdShort}`,
+                html: emailHtml
+              });
+              console.log("EMAIL DEBUG: send result =", JSON.stringify(emailResult));
+            } catch (emailError) {
+              console.error("EMAIL DEBUG: send failed with error =", emailError);
+            }
           } else {
             console.warn("RESEND_API_KEY is not defined. Skipping confirmation email sending.");
           }
