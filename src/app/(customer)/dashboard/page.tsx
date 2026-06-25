@@ -193,6 +193,8 @@ function DashboardContent() {
     };
 
     const isMock = process.env.NEXT_PUBLIC_MOCK_PAYMENT !== "false";
+    console.log("DEBUG: NEXT_PUBLIC_MOCK_PAYMENT raw value =", JSON.stringify(process.env.NEXT_PUBLIC_MOCK_PAYMENT));
+    console.log("DEBUG: isMock evaluates to =", isMock);
 
     if (isMock) {
       // Simulate Razorpay loading & completion
