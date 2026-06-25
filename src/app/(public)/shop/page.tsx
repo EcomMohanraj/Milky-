@@ -16,7 +16,7 @@ function ShopContent() {
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   // States for filters
   const [searchQuery, setSearchQuery] = useState("");
@@ -30,20 +30,14 @@ function ShopContent() {
   useEffect(() => {
     const loadData = async () => {
       try {
-        const res = await fetch("/api/products");
-        if (!res.ok) {
-          const text = await res.text();
-          throw new Error(`API returned status ${res.status}: ${text.slice(0, 100)}`);
-        }
-        const data = await res.json();
-        if (!data.products) {
-          throw new Error("API response did not contain products array.");
-        }
-        setProducts(data.products);
-        setFilteredProducts(data.products);
-      } catch (err: any) {
+        setLoading(true);
+        setError(null);
+        const data = await productService.getProducts();
+        setProducts(data);
+        setFilteredProducts(data);
+      } catch (err) {
         console.error("Failed to load products: ", err);
-        setErrorMsg(err.message || String(err));
+        setError(err instanceof Error ? err.message : String(err));
       } finally {
         setLoading(false);
       }
@@ -216,12 +210,7 @@ function ShopContent() {
 
         {/* Main Grid */}
         <div className="lg:col-span-3 flex-grow">
-          {errorMsg ? (
-            <div className="bg-red-50 border border-red-200 text-red-700 rounded-2xl p-6 text-center">
-              <h3 className="font-extrabold text-sm uppercase tracking-wider mb-2">Error Loading Catalogue</h3>
-              <p className="text-xs">{errorMsg}</p>
-            </div>
-          ) : loading ? (
+          {loading ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {[1, 2, 3, 4].map((n) => (
                 <div
@@ -229,6 +218,34 @@ function ShopContent() {
                   className="bg-card border border-border animate-pulse rounded-2xl h-[380px]"
                 />
               ))}
+            </div>
+          ) : error ? (
+            <div className="bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800/30 rounded-3xl p-8 text-center flex flex-col items-center justify-center gap-4 min-h-[300px]">
+              <div className="text-red-500 font-extrabold text-lg">Error Loading Catalogue</div>
+              <p className="text-xs text-red-600 dark:text-red-400 max-w-md bg-white dark:bg-black/20 p-4 rounded-xl border border-red-100 dark:border-red-900/30 font-mono break-all text-left">
+                {error}
+              </p>
+              <button
+                onClick={() => {
+                  setError(null);
+                  setLoading(true);
+                  const loadData = async () => {
+                    try {
+                      const data = await productService.getProducts();
+                      setProducts(data);
+                      setFilteredProducts(data);
+                    } catch (err) {
+                      setError(err instanceof Error ? err.message : String(err));
+                    } finally {
+                      setLoading(false);
+                    }
+                  };
+                  loadData();
+                }}
+                className="px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-xl shadow-sm transition-colors"
+              >
+                Try Again
+              </button>
             </div>
           ) : filteredProducts.length === 0 ? (
             <div className="bg-card border border-border/80 rounded-3xl p-12 text-center flex flex-col items-center justify-center gap-5 min-h-[400px]">
@@ -261,6 +278,8 @@ function ShopContent() {
     </div>
   );
 }
+
+export const dynamic = "force-dynamic";
 
 export default function ShopPage() {
   return (

@@ -11,9 +11,15 @@ export const isSupabaseConfigured =
   supabaseAnonKey &&
   supabaseAnonKey !== "mock-anon-key" &&
   supabaseAnonKey !== "your-supabase-anon-key";
-export const supabase = isSupabaseConfigured
-  ? createClient(supabaseUrl, supabaseAnonKey)
-  : null;
+export const supabase = (() => {
+  if (!isSupabaseConfigured) return null;
+  try {
+    return createClient(supabaseUrl, supabaseAnonKey);
+  } catch (err) {
+    console.error("Failed to initialize Supabase client:", err);
+    return null;
+  }
+})();
 // Helper to get local storage helper in browser
 export const getLocalStorageItem = <T>(key: string, defaultValue: T): T => {
   if (typeof window === "undefined") return defaultValue;
