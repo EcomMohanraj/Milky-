@@ -192,7 +192,7 @@ function DashboardContent() {
       });
     };
 
-    const isMock = true; // Default to true since env.local is set to true for evaluation
+    const isMock = process.env.NEXT_PUBLIC_MOCK_PAYMENT !== "false";
 
     if (isMock) {
       // Simulate Razorpay loading & completion
@@ -235,82 +235,119 @@ function DashboardContent() {
       }, 2000);
     } else {
       // Real Razorpay payment flow
-      const res = await loadRazorpay();
-      if (!res) {
-        toast({
-          title: "Razorpay Failed",
-          description: "Could not load Payment Gateway. Please try again or use mock mode.",
-          variant: "destructive",
-        });
-        setPlacingOrder(false);
-        return;
-      }
+      try {
+        const newOrder = await orderService.createOrder(
+          {
+            user_id: user.id,
+            amount: cartTotal,
+            status: "pending",
+            address: `${addr.address}, ${addr.city} - ${addr.pincode}`,
+          },
+          cart.map((item) => ({
+            product_id: item.product.id,
+            quantity: item.quantity,
+            price: item.product.price,
+          }))
+        );
 
-      // Complete checkout triggering Razorpay window
-      const options = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "rzp_test_mockkeyid",
-        amount: cartTotal * 100, // in paise
-        currency: "INR",
-        name: "Milky Mushrooms",
-        description: "Fresh Farm Mushrooms Purchase",
-        image: "/images/fresh_milky_mushrooms.png",
-        handler: async function (response: { razorpay_payment_id: string }) {
-          try {
-            const newOrder = await orderService.createOrder(
-              {
-                user_id: user.id,
-                amount: cartTotal,
-                status: "paid",
+        if (!newOrder.razorpay_order_id) {
+          throw new Error("Failed to retrieve Razorpay Order ID from server.");
+        }
+
+        const res = await loadRazorpay();
+        if (!res) {
+          throw new Error("Could not load Payment Gateway script. Please try again.");
+        }
+
+        // Complete checkout triggering Razorpay window
+        const options = {
+          key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "rzp_test_mockkeyid",
+          amount: Math.round(cartTotal * 100), // in paise
+          currency: "INR",
+          name: "Milky Mushrooms",
+          description: "Fresh Farm Mushrooms Purchase",
+          image: "/images/fresh_milky_mushrooms.png",
+          order_id: newOrder.razorpay_order_id,
+          handler: async function (response: {
+            razorpay_payment_id: string;
+            razorpay_order_id: string;
+            razorpay_signature: string;
+          }) {
+            setPlacingOrder(true);
+            try {
+              // Verify signature server-side
+              const verifyRes = await fetch("/api/verify-payment", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  order_id: newOrder.id,
+                  razorpay_order_id: response.razorpay_order_id,
+                  razorpay_payment_id: response.razorpay_payment_id,
+                  razorpay_signature: response.razorpay_signature,
+                }),
+              });
+
+              if (!verifyRes.ok) {
+                const errData = await verifyRes.json();
+                throw new Error(errData.error || "Payment verification failed.");
+              }
+
+              // Update the order in UI state to 'paid'
+              const completedOrder = {
+                ...newOrder,
+                status: "paid" as const,
                 payment_id: response.razorpay_payment_id,
-                address: `${addr.address}, ${addr.city} - ${addr.pincode}`,
-              },
-              cart.map((item) => ({
-                product_id: item.product.id,
-                quantity: item.quantity,
-                price: item.product.price,
-              }))
-            );
+              };
 
-            setOrderSuccess(newOrder);
-            clearCart();
-            toast({
-              title: "Payment Verified",
-              description: "Order placed successfully!",
-              variant: "success",
-            });
-            loadUserData();
-          } catch (err) {
-            console.error("Order creation failed in real mode:", err);
-            toast({
-              title: "Order Placement Failed",
-              description: err instanceof Error ? err.message : "Failed to save order to the database. Please check connection.",
-              variant: "destructive",
-            });
-          } finally {
-            setPlacingOrder(false);
-          }
-        },
-        prefill: {
-          name: user.name,
-          email: user.email,
-          contact: user.phone || "",
-        },
-        theme: {
-          color: "#15803d",
-        },
-      };
+              setOrderSuccess(completedOrder);
+              clearCart();
+              toast({
+                title: "Payment Verified",
+                description: "Order placed successfully!",
+                variant: "success",
+              });
+              loadUserData();
+            } catch (err) {
+              console.error("Payment verification error:", err);
+              toast({
+                title: "Payment Verification Failed",
+                description: err instanceof Error ? err.message : "Failed to verify payment signature.",
+                variant: "destructive",
+              });
+            } finally {
+              setPlacingOrder(false);
+            }
+          },
+          prefill: {
+            name: user.name,
+            email: user.email,
+            contact: user.phone || "",
+          },
+          theme: {
+            color: "#15803d",
+          },
+        };
 
-      /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-      const paymentObject = new (window as any).Razorpay(options);
-      paymentObject.open();
-      paymentObject.on("payment.failed", function (response: { error: { description: string } }) {
+        /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+        const paymentObject = new (window as any).Razorpay(options);
+        paymentObject.open();
+        paymentObject.on("payment.failed", function (response: { error: { description: string } }) {
+          toast({
+            title: "Payment Failed",
+            description: response.error.description || "Transaction declined.",
+            variant: "destructive",
+          });
+          setPlacingOrder(false);
+        });
+      } catch (err) {
+        console.error("Order initialization failed in real mode:", err);
         toast({
-          title: "Payment Failed",
-          description: response.error.description || "Transaction declined.",
+          title: "Order Placement Failed",
+          description: err instanceof Error ? err.message : "Failed to save order to the database. Please check connection.",
           variant: "destructive",
         });
         setPlacingOrder(false);
-      });
+      }
     }
   };
 

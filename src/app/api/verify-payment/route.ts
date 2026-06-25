@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
 import crypto from "crypto";
+import { query } from "@/lib/db";
 
 export async function POST(request: Request) {
   try {
-    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = await request.json();
+    const { order_id, razorpay_order_id, razorpay_payment_id, razorpay_signature } = await request.json();
 
-    if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+    if (!order_id || !razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
       return NextResponse.json(
         { verified: false, error: "Missing required parameters" },
         { status: 400 }
@@ -23,6 +24,14 @@ export async function POST(request: Request) {
     const isVerified = hash === razorpay_signature;
 
     if (isVerified) {
+      // Mark the order as paid in the database
+      await query(
+        `UPDATE public.orders 
+         SET status = 'paid', payment_id = $1 
+         WHERE id = $2`,
+        [razorpay_payment_id, order_id]
+      );
+
       return NextResponse.json({
         verified: true,
         message: "Payment signature verified successfully.",

@@ -33,6 +33,7 @@ export interface Order {
   amount: number;
   status: "pending" | "paid" | "failed" | "shipped" | "delivered";
   payment_id?: string;
+  razorpay_order_id?: string;
   address?: string;
   created_at: string;
   items?: OrderItem[];

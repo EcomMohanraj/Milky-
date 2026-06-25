@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { verifyJwt } from "@/lib/jwt";
 import { query } from "@/lib/db";
+import Razorpay from "razorpay";
 
 export async function GET() {
   try {
@@ -121,9 +122,39 @@ export async function POST(request: Request) {
       );
     }
 
-    return NextResponse.json({ order: { ...order, items: insertedItems } });
+    // Create Razorpay Order ID if in real mode and order is pending
+    let razorpayOrderId = null;
+    const isMock = process.env.NEXT_PUBLIC_MOCK_PAYMENT !== "false";
+    if (!isMock && (!status || status === "pending")) {
+      try {
+        const razorpay = new Razorpay({
+          key_id: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "",
+          key_secret: process.env.RAZORPAY_KEY_SECRET || "",
+        });
+        const rzpOrder = await razorpay.orders.create({
+          amount: Math.round(amount * 100), // in paise
+          currency: "INR",
+          receipt: order.id,
+        });
+        razorpayOrderId = rzpOrder.id;
+      } catch (err) {
+        console.error("Razorpay order creation failed:", err);
+        throw new Error("Failed to initialize payment gateway order.");
+      }
+    }
+
+    return NextResponse.json({ 
+      order: { 
+        ...order, 
+        items: insertedItems,
+        razorpay_order_id: razorpayOrderId
+      } 
+    });
   } catch (error) {
     console.error("POST Order API error:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : "Internal Server Error" }, 
+      { status: 500 }
+    );
   }
 }
