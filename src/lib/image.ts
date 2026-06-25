@@ -10,8 +10,8 @@ export function getProductImageUrl(imagePath: string | null | undefined): string
   }
   
   // Construct Supabase public storage URL
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
-  if (!supabaseUrl) {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  if (!supabaseUrl || supabaseUrl === "https://mock-project.supabase.co" || supabaseUrl === "https://your-project-id.supabase.co") {
     return "/images/fresh_milky_mushrooms.png";
   }
   

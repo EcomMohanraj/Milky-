@@ -3,15 +3,13 @@ import { Product, Review, BlogPost } from "@/types";
 export const productService = {
   // PRODUCTS
   async getProducts(): Promise<Product[]> {
-    try {
-      const res = await fetch("/api/products");
-      if (!res.ok) return [];
-      const data = await res.json();
-      return data.products as Product[];
-    } catch (err) {
-      console.error("getProducts error:", err);
-      return [];
+    const res = await fetch("/api/products");
+    if (!res.ok) {
+      const errorText = await res.text().catch(() => "No error details available");
+      throw new Error(`Server returned status ${res.status} (${res.statusText}): ${errorText}`);
     }
+    const data = await res.json();
+    return data.products as Product[];
   },
 
   async getProductBySlug(slug: string): Promise<Product | null> {
