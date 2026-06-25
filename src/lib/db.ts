@@ -739,14 +739,39 @@ export const mockQuery = async (text: string, params: unknown[] = []) => {
     return { rows: [] };
   }
 
-  // 29. DELETE FROM public.addresses WHERE id = $1 AND user_id = $2
-  if (normalized.includes("DELETE FROM public.addresses WHERE id = $1 AND user_id = $2")) {
-    const [id, user_id] = params;
-    dbData.addresses = dbData.addresses.filter((addr: MockAddress) => 
-      !(addr.id === id && addr.user_id === user_id)
-    );
-    save();
+  // 30. SELECT o.id, o.amount, o.address, u.email, u.name FROM public.orders o JOIN public.users u ON o.user_id = u.id WHERE o.id = $1
+  if (normalized.includes("FROM public.orders o") && normalized.includes("JOIN public.users u") && normalized.includes("o.id = $1")) {
+    const orderId = params[0] as string;
+    const order = dbData.orders.find((o: MockOrder) => o.id === orderId);
+    if (order) {
+      const user = dbData.users.find((u: MockUser) => u.id === order.user_id);
+      return {
+        rows: [{
+          id: order.id,
+          amount: order.amount,
+          address: order.address,
+          email: user ? user.email : "customer@gmail.com",
+          name: user ? user.name : "Customer"
+        }]
+      };
+    }
     return { rows: [] };
+  }
+
+  // 31. SELECT oi.quantity, oi.price, p.name FROM public.order_items oi JOIN public.products p ON oi.product_id = p.id WHERE oi.order_id = $1
+  if (normalized.includes("FROM public.order_items oi") && normalized.includes("JOIN public.products p") && normalized.includes("oi.order_id = $1")) {
+    const orderId = params[0] as string;
+    const items = dbData.order_items
+      .filter((oi: MockOrderItem) => oi.order_id === orderId)
+      .map((oi: MockOrderItem) => {
+        const product = dbData.products.find((p: MockProduct) => p.id === oi.product_id);
+        return {
+          quantity: oi.quantity,
+          price: oi.price,
+          name: product ? product.name : "Premium Milky Mushrooms"
+        };
+      });
+    return { rows: items };
   }
 
   console.warn("Unrecognized mock query:", text, params);
