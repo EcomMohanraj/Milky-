@@ -223,7 +223,12 @@ function DashboardContent() {
           // Refresh order list in background
           loadUserData();
         } catch (err) {
-          console.error(err);
+          console.error("Order creation failed in mock mode:", err);
+          toast({
+            title: "Order Placement Failed",
+            description: err instanceof Error ? err.message : "Failed to save order to the database. Please check connection.",
+            variant: "destructive",
+          });
         } finally {
           setPlacingOrder(false);
         }
@@ -275,7 +280,12 @@ function DashboardContent() {
             });
             loadUserData();
           } catch (err) {
-            console.error(err);
+            console.error("Order creation failed in real mode:", err);
+            toast({
+              title: "Order Placement Failed",
+              description: err instanceof Error ? err.message : "Failed to save order to the database. Please check connection.",
+              variant: "destructive",
+            });
           } finally {
             setPlacingOrder(false);
           }
