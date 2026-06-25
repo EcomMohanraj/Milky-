@@ -115,6 +115,29 @@ export default function AdminDashboardPage() {
     }
   };
 
+  const handleCleanupAbandoned = async () => {
+    if (!confirm("Are you sure you want to scan and mark all pending orders older than 1 hour as failed?")) return;
+    try {
+      const res = await fetch("/api/orders/cleanup", { method: "POST" });
+      if (!res.ok) throw new Error("Failed to run cleanup");
+      const data = await res.json();
+      toast({
+        title: "Cleanup Complete",
+        description: data.message || "Abandoned checkouts marked as failed.",
+        variant: "success",
+      });
+      loadAdminData();
+    } catch (err) {
+      console.error(err);
+      const errMsg = err instanceof Error ? err.message : "Could not complete cleanup.";
+      toast({
+        title: "Cleanup Failed",
+        description: errMsg,
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleAddProductSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!prodName || !prodSlug) return;
@@ -389,14 +412,23 @@ export default function AdminDashboardPage() {
                 <div className="flex flex-col gap-6">
                   <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-border/40 pb-3">
                     <h2 className="text-lg font-extrabold text-foreground font-outfit">Orders Management</h2>
-                    <span className="text-xs text-muted-foreground font-bold bg-muted/40 px-2 py-0.5 rounded-md">
-                      Showing {orders.filter((ord) => {
-                        const matchesStatus = orderStatusFilter === "all" || ord.status === orderStatusFilter;
-                        const matchesSearch = ord.id.toLowerCase().includes(orderSearchVal.toLowerCase()) ||
-                                              (ord.address || "").toLowerCase().includes(orderSearchVal.toLowerCase());
-                        return matchesStatus && matchesSearch;
-                      }).length} of {orders.length} orders
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={handleCleanupAbandoned}
+                        className="px-3 py-1 bg-amber-600/10 hover:bg-amber-600/20 text-amber-700 dark:text-amber-400 text-xs font-bold rounded-lg border border-amber-500/20 transition-all flex items-center gap-1.5"
+                        title="Mark pending orders older than 1 hour as failed"
+                      >
+                        Clean Abandoned (&gt;1h)
+                      </button>
+                      <span className="text-xs text-muted-foreground font-bold bg-muted/40 px-2 py-0.5 rounded-md">
+                        Showing {orders.filter((ord) => {
+                          const matchesStatus = orderStatusFilter === "all" || ord.status === orderStatusFilter;
+                          const matchesSearch = ord.id.toLowerCase().includes(orderSearchVal.toLowerCase()) ||
+                                                (ord.address || "").toLowerCase().includes(orderSearchVal.toLowerCase());
+                          return matchesStatus && matchesSearch;
+                        }).length} of {orders.length} orders
+                      </span>
+                    </div>
                   </div>
 
                   {orders.length === 0 ? (
@@ -648,6 +680,47 @@ export default function AdminDashboardPage() {
                                                       <strong>Status:</strong> {ord.status.toUpperCase()}
                                                       <p className="mt-0.5">Modify action status using the dropdown list selector.</p>
                                                     </div>
+
+                                                    {ord.status === "pending" && (
+                                                      <div className="flex gap-2 mt-3">
+                                                        <button
+                                                          onClick={() => {
+                                                            if (confirm("Are you sure you want to cancel this pending order? This will mark it as failed.")) {
+                                                              handleUpdateOrderStatus(ord.id, "failed");
+                                                            }
+                                                          }}
+                                                          className="flex-grow py-2 bg-amber-600 hover:bg-amber-700 text-white text-[11px] font-bold rounded-lg shadow-sm transition-colors text-center"
+                                                        >
+                                                          Cancel Order
+                                                        </button>
+                                                        <button
+                                                          onClick={async () => {
+                                                            if (confirm("WARNING: Are you sure you want to permanently delete this pending order? This will also delete all associated order items. This action cannot be undone.")) {
+                                                              try {
+                                                                await orderService.deleteOrder(ord.id);
+                                                                setOrders((prev) => prev.filter((o) => o.id !== ord.id));
+                                                                toast({
+                                                                  title: "Order Deleted",
+                                                                  description: "Successfully deleted the order and its items.",
+                                                                  variant: "success"
+                                                                });
+                                                              } catch (err) {
+                                                                const errMsg = err instanceof Error ? err.message : "Failed to delete order.";
+                                                                toast({
+                                                                  title: "Error",
+                                                                  description: errMsg,
+                                                                  variant: "destructive"
+                                                                });
+                                                              }
+                                                            }
+                                                          }}
+                                                          className="px-3 py-2 bg-red-600 hover:bg-red-700 text-white text-[11px] font-bold rounded-lg shadow-sm transition-colors flex items-center justify-center"
+                                                          title="Permanently Delete Order"
+                                                        >
+                                                          <Trash2 className="w-3.5 h-3.5" />
+                                                        </button>
+                                                      </div>
+                                                    )}
 
                                                   </div>
 

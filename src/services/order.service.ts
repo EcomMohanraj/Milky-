@@ -52,6 +52,17 @@ export const orderService = {
     }
   },
 
+  async deleteOrder(orderId: string): Promise<void> {
+    const res = await fetch(`/api/orders/${orderId}`, {
+      method: "DELETE"
+    });
+
+    if (!res.ok) {
+      const errData = await res.json();
+      throw new Error(errData.error || "Failed to delete order.");
+    }
+  },
+
   // ADDRESSES
   async getAddresses(_userId: string): Promise<Address[]> {
     try {

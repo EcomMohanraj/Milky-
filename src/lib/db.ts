@@ -662,6 +662,22 @@ export const mockQuery = async (text: string, params: unknown[] = []) => {
     return { rows: [] };
   }
 
+  // 23b. UPDATE public.orders SET status = 'failed' WHERE status = 'pending' AND created_at < $1
+  if (normalized.includes("UPDATE public.orders SET status = 'failed'") && normalized.includes("created_at < $1")) {
+    const cutOff = new Date(params[0] as string);
+    let updatedCount = 0;
+    dbData.orders.forEach((o: MockOrder) => {
+      if (o.status === "pending" && new Date(o.created_at) < cutOff) {
+        o.status = "failed";
+        updatedCount++;
+      }
+    });
+    if (updatedCount > 0) {
+      save();
+    }
+    return { rows: [], rowCount: updatedCount };
+  }
+
   // 24. UPDATE public.users SET name = $1, phone = $2 WHERE id = $3
   if (normalized.includes("UPDATE public.users SET name = $1, phone = $2 WHERE id = $3")) {
     const [name, phone, id] = params;
@@ -710,6 +726,15 @@ export const mockQuery = async (text: string, params: unknown[] = []) => {
   if (normalized.includes("DELETE FROM public.blog_posts WHERE id = $1")) {
     const id = params[0] as string;
     dbData.blog_posts = dbData.blog_posts.filter((b: MockBlogPost) => b.id !== id);
+    save();
+    return { rows: [] };
+  }
+
+  // 28b. DELETE FROM public.orders WHERE id = $1
+  if (normalized.includes("DELETE FROM public.orders WHERE id = $1")) {
+    const id = params[0] as string;
+    dbData.orders = dbData.orders.filter((o: MockOrder) => o.id !== id);
+    dbData.order_items = dbData.order_items.filter((oi: MockOrderItem) => oi.order_id !== id);
     save();
     return { rows: [] };
   }
