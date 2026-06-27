@@ -37,6 +37,10 @@ export default function AdminDashboardPage() {
   const [orderSearchVal, setOrderSearchVal] = useState<string>("");
   const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
 
+  // Shipment tracking states
+  const [trackingInputs, setTrackingInputs] = useState<Record<string, string>>({});
+  const [savingTrackingId, setSavingTrackingId] = useState<Record<string, boolean>>({});
+
   // Form states for creating products
   const [showProductForm, setShowProductForm] = useState(false);
   const [prodName, setProdName] = useState("");
@@ -112,6 +116,48 @@ export default function AdminDashboardPage() {
       });
     } catch (err) {
       console.error(err);
+    }
+  };
+
+  const handleSaveTrackingId = async (orderId: string) => {
+    const trackingId = trackingInputs[orderId] !== undefined ? trackingInputs[orderId] : (orders.find(o => o.id === orderId)?.tracking_id || "");
+    if (!trackingId) {
+      toast({
+        title: "Tracking ID Required",
+        description: "Please enter a tracking ID before saving.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setSavingTrackingId(prev => ({ ...prev, [orderId]: true }));
+    try {
+      const order = orders.find(o => o.id === orderId);
+      let newStatus = order?.status;
+      if (order && order.status !== "shipped" && order.status !== "delivered") {
+        newStatus = "shipped";
+      }
+
+      await orderService.updateOrderTracking(orderId, trackingId, newStatus);
+
+      setOrders(prev =>
+        prev.map(o => o.id === orderId ? { ...o, tracking_id: trackingId, status: newStatus || o.status } : o)
+      );
+
+      toast({
+        title: "Tracking ID Saved",
+        description: "Shipment tracking number has been updated and customer notified.",
+        variant: "success"
+      });
+    } catch (err) {
+      console.error(err);
+      toast({
+        title: "Update Failed",
+        description: err instanceof Error ? err.message : "Failed to update tracking ID.",
+        variant: "destructive"
+      });
+    } finally {
+      setSavingTrackingId(prev => ({ ...prev, [orderId]: false }));
     }
   };
 
@@ -679,6 +725,34 @@ export default function AdminDashboardPage() {
                                                     <div className="text-[10px] text-muted-foreground leading-normal mt-1 bg-muted/40 p-2 rounded-lg border border-border/30">
                                                       <strong>Status:</strong> {ord.status.toUpperCase()}
                                                       <p className="mt-0.5">Modify action status using the dropdown list selector.</p>
+                                                    </div>
+
+                                                    {/* Shipment Tracking Section */}
+                                                    <div className="border-t border-border/40 pt-3 mt-1 flex flex-col gap-2">
+                                                      <label className="font-extrabold text-[10px] text-foreground uppercase tracking-wide">
+                                                        Shipment Tracking
+                                                      </label>
+                                                      <div className="flex gap-2">
+                                                        <input
+                                                          type="text"
+                                                          placeholder="Courier Tracking ID (e.g. CT3178988551IN)"
+                                                          value={trackingInputs[ord.id] !== undefined ? trackingInputs[ord.id] : (ord.tracking_id || "")}
+                                                          onChange={(e) => setTrackingInputs(prev => ({ ...prev, [ord.id]: e.target.value }))}
+                                                          className="flex-grow px-2.5 py-1.5 border border-border rounded-lg bg-background text-xs text-foreground focus:outline-none focus:border-primary font-mono"
+                                                        />
+                                                        <button
+                                                          onClick={() => handleSaveTrackingId(ord.id)}
+                                                          disabled={savingTrackingId[ord.id]}
+                                                          className="px-3 py-1.5 bg-primary hover:bg-primary/95 disabled:bg-muted text-primary-foreground text-xs font-bold rounded-lg shadow-sm transition-all whitespace-nowrap"
+                                                        >
+                                                          {savingTrackingId[ord.id] ? "Saving..." : "Save ID"}
+                                                        </button>
+                                                      </div>
+                                                      {ord.tracking_id && (
+                                                        <p className="text-[10px] text-muted-foreground">
+                                                          Current Tracking: <span className="font-mono font-bold text-foreground">{ord.tracking_id}</span>
+                                                        </p>
+                                                      )}
                                                     </div>
 
                                                     {ord.status === "pending" && (

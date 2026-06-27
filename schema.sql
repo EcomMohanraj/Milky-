@@ -81,6 +81,7 @@ CREATE TABLE IF NOT EXISTS public.orders (
   status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'paid', 'failed', 'shipped', 'delivered')),
   payment_id TEXT, -- Razorpay Payment/Order ID
   address TEXT, -- Flattened address snapshot at time of purchase
+  tracking_id TEXT, -- Manual shipment tracking ID
   created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
 );
 

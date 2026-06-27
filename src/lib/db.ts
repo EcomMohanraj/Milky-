@@ -83,6 +83,7 @@ interface MockOrder {
   status: string;
   payment_id: string | null;
   address: string;
+  tracking_id: string | null;
   created_at: string;
 }
 
@@ -462,6 +463,7 @@ export const mockQuery = async (text: string, params: unknown[] = []) => {
         status: o.status,
         payment_id: o.payment_id,
         address: o.address,
+        tracking_id: o.tracking_id || null,
         created_at: o.created_at,
         items
       };
@@ -556,6 +558,7 @@ export const mockQuery = async (text: string, params: unknown[] = []) => {
       status: (status as string) || "pending",
       payment_id: (payment_id as string) || null,
       address: address as string,
+      tracking_id: null,
       created_at: new Date().toISOString()
     };
     dbData.orders.push(newOrder);
@@ -657,6 +660,21 @@ export const mockQuery = async (text: string, params: unknown[] = []) => {
     const order = dbData.orders.find((o: MockOrder) => o.id === orderId);
     if (order) {
       order.status = status as string;
+      save();
+    }
+    return { rows: [] };
+  }
+
+  // 23c. UPDATE public.orders SET status = $1, tracking_id = $2 WHERE id = $3
+  if (normalized.includes("UPDATE public.orders SET status = $1, tracking_id = $2 WHERE id = $3") ||
+      (normalized.includes("UPDATE public.orders") && normalized.includes("tracking_id = $2"))) {
+    const status = params[0] as string;
+    const trackingId = params[1] as string;
+    const orderId = params[2] as string;
+    const order = dbData.orders.find((o: MockOrder) => o.id === orderId);
+    if (order) {
+      order.status = status as string;
+      order.tracking_id = trackingId as string || null;
       save();
     }
     return { rows: [] };
@@ -849,6 +867,7 @@ export const initDb = async () => {
         status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'paid', 'failed', 'shipped', 'delivered')),
         payment_id TEXT,
         address TEXT,
+        tracking_id TEXT,
         created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
       );
     `);
@@ -896,6 +915,10 @@ export const initDb = async () => {
 
     await query(`
       ALTER TABLE public.products ADD COLUMN IF NOT EXISTS category TEXT;
+    `);
+
+    await query(`
+      ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS tracking_id TEXT;
     `);
 
     // Remove foreign keys linking to Supabase auth schema if they exist

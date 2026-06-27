@@ -52,6 +52,19 @@ export const orderService = {
     }
   },
 
+  async updateOrderTracking(orderId: string, tracking_id: string, status?: Order["status"]): Promise<void> {
+    const res = await fetch(`/api/orders/${orderId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status, tracking_id })
+    });
+
+    if (!res.ok) {
+      const errData = await res.json();
+      throw new Error(errData.error || "Failed to update order tracking.");
+    }
+  },
+
   async deleteOrder(orderId: string): Promise<void> {
     const res = await fetch(`/api/orders/${orderId}`, {
       method: "DELETE"

@@ -755,6 +755,26 @@ function DashboardContent() {
                             />
                           </div>
                         </div>
+
+                        {/* Shipment Tracking details */}
+                        {ord.tracking_id && (
+                          <div className="mt-3.5 bg-primary/5 border border-primary/20 p-3 rounded-xl flex flex-col gap-1">
+                            <span className="text-[10px] font-bold uppercase text-primary tracking-wider">Shipment Tracking</span>
+                            <div className="flex justify-between items-center gap-2">
+                              <span>
+                                Tracking ID: <span className="font-mono font-bold text-foreground">{ord.tracking_id}</span>
+                              </span>
+                              <a
+                                href="https://www.indiapost.gov.in/_layouts/15/dop.portal.tracking/trackconsignment.aspx"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-[10px] font-bold text-primary hover:underline"
+                              >
+                                Track Package →
+                              </a>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>
