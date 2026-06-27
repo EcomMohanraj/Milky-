@@ -128,7 +128,7 @@ export async function POST(request: Request) {
             const resend = new Resend(apiKey);
             try {
               const emailResult = await resend.emails.send({
-                from: "onboarding@resend.dev",
+                from: "Milky Mushrooms <orders@milkymushroom.in>",
                 to: customerEmail,
                 subject: `Order Confirmed - Milky Mushrooms #${orderIdShort}`,
                 html: emailHtml
