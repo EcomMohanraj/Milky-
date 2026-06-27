@@ -82,6 +82,7 @@ CREATE TABLE IF NOT EXISTS public.orders (
   payment_id TEXT, -- Razorpay Payment/Order ID
   address TEXT, -- Flattened address snapshot at time of purchase
   tracking_id TEXT, -- Manual shipment tracking ID
+  courier_name TEXT, -- Manual shipment courier name
   created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
 );
 

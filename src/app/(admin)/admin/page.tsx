@@ -39,6 +39,7 @@ export default function AdminDashboardPage() {
 
   // Shipment tracking states
   const [trackingInputs, setTrackingInputs] = useState<Record<string, string>>({});
+  const [courierInputs, setCourierInputs] = useState<Record<string, string>>({});
   const [savingTrackingId, setSavingTrackingId] = useState<Record<string, boolean>>({});
 
   // Form states for creating products
@@ -121,6 +122,8 @@ export default function AdminDashboardPage() {
 
   const handleSaveTrackingId = async (orderId: string) => {
     const trackingId = trackingInputs[orderId] !== undefined ? trackingInputs[orderId] : (orders.find(o => o.id === orderId)?.tracking_id || "");
+    const courierName = courierInputs[orderId] !== undefined ? courierInputs[orderId] : (orders.find(o => o.id === orderId)?.courier_name || "");
+
     if (!trackingId) {
       toast({
         title: "Tracking ID Required",
@@ -138,16 +141,32 @@ export default function AdminDashboardPage() {
         newStatus = "shipped";
       }
 
-      await orderService.updateOrderTracking(orderId, trackingId, newStatus);
+      const res = await orderService.updateOrderTracking(orderId, trackingId, courierName, newStatus);
 
       setOrders(prev =>
-        prev.map(o => o.id === orderId ? { ...o, tracking_id: trackingId, status: newStatus || o.status } : o)
+        prev.map(o => o.id === orderId ? { ...o, tracking_id: trackingId, courier_name: courierName, status: newStatus || o.status } : o)
       );
 
+      // Analyze dispatch outcome to construct success text
+      let desc = "Tracking ID has been saved successfully.";
+      if (res.notified) {
+        if (res.emailSent && res.smsSent) {
+          desc = "Tracking ID saved successfully. Email and SMS notifications have been sent.";
+        } else if (res.emailSent && !res.smsSent) {
+          desc = `Tracking ID saved successfully. Email sent, but SMS failed: ${res.smsError || "Unknown error"}`;
+        } else if (!res.emailSent && res.smsSent) {
+          desc = `Tracking ID saved successfully. SMS sent, but Email failed: ${res.emailError || "Unknown error"}`;
+        } else {
+          desc = `Tracking ID saved. However, Email and SMS notifications failed: Email (${res.emailError || "failed"}), SMS (${res.smsError || "failed"})`;
+        }
+      } else {
+        desc = "Tracking ID saved successfully. (Duplicate ID; notifications skipped to prevent spam.)";
+      }
+
       toast({
-        title: "Tracking ID Saved",
-        description: "Shipment tracking number has been updated and customer notified.",
-        variant: "success"
+        title: "Shipment Saved",
+        description: desc,
+        variant: (res.notified && (!res.emailSent || !res.smsSent)) ? "info" : "success",
       });
     } catch (err) {
       console.error(err);
@@ -728,30 +747,57 @@ export default function AdminDashboardPage() {
                                                     </div>
 
                                                     {/* Shipment Tracking Section */}
-                                                    <div className="border-t border-border/40 pt-3 mt-1 flex flex-col gap-2">
+                                                    <div className="border-t border-border/40 pt-3 mt-1 flex flex-col gap-2.5">
                                                       <label className="font-extrabold text-[10px] text-foreground uppercase tracking-wide">
                                                         Shipment Tracking
                                                       </label>
-                                                      <div className="flex gap-2">
-                                                        <input
-                                                          type="text"
-                                                          placeholder="Courier Tracking ID (e.g. CT3178988551IN)"
-                                                          value={trackingInputs[ord.id] !== undefined ? trackingInputs[ord.id] : (ord.tracking_id || "")}
-                                                          onChange={(e) => setTrackingInputs(prev => ({ ...prev, [ord.id]: e.target.value }))}
-                                                          className="flex-grow px-2.5 py-1.5 border border-border rounded-lg bg-background text-xs text-foreground focus:outline-none focus:border-primary font-mono"
-                                                        />
+                                                      
+                                                      <div className="flex flex-col gap-2">
+                                                        <div className="flex flex-col gap-1">
+                                                          <span className="text-[9px] uppercase font-bold text-muted-foreground">Courier Name</span>
+                                                          <input
+                                                            type="text"
+                                                            placeholder="e.g. India Post, Blue Dart"
+                                                            value={courierInputs[ord.id] !== undefined ? courierInputs[ord.id] : (ord.courier_name || "")}
+                                                            onChange={(e) => setCourierInputs(prev => ({ ...prev, [ord.id]: e.target.value }))}
+                                                            disabled={savingTrackingId[ord.id]}
+                                                            className="w-full px-2.5 py-1.5 border border-border rounded-lg bg-background text-xs text-foreground focus:outline-none focus:border-primary disabled:bg-muted/40 disabled:cursor-not-allowed"
+                                                          />
+                                                        </div>
+
+                                                        <div className="flex flex-col gap-1">
+                                                          <span className="text-[9px] uppercase font-bold text-muted-foreground">Tracking ID / Number</span>
+                                                          <input
+                                                            type="text"
+                                                            placeholder="e.g. CT3178988551IN"
+                                                            value={trackingInputs[ord.id] !== undefined ? trackingInputs[ord.id] : (ord.tracking_id || "")}
+                                                            onChange={(e) => setTrackingInputs(prev => ({ ...prev, [ord.id]: e.target.value }))}
+                                                            disabled={savingTrackingId[ord.id]}
+                                                            className="w-full px-2.5 py-1.5 border border-border rounded-lg bg-background text-xs text-foreground focus:outline-none focus:border-primary font-mono disabled:bg-muted/40 disabled:cursor-not-allowed"
+                                                          />
+                                                        </div>
+
                                                         <button
                                                           onClick={() => handleSaveTrackingId(ord.id)}
                                                           disabled={savingTrackingId[ord.id]}
-                                                          className="px-3 py-1.5 bg-primary hover:bg-primary/95 disabled:bg-muted text-primary-foreground text-xs font-bold rounded-lg shadow-sm transition-all whitespace-nowrap"
+                                                          className="w-full py-2 bg-primary hover:bg-primary/95 disabled:bg-muted text-primary-foreground text-xs font-bold rounded-lg shadow-sm transition-all flex items-center justify-center gap-1.5 mt-1"
                                                         >
-                                                          {savingTrackingId[ord.id] ? "Saving..." : "Save ID"}
+                                                          {savingTrackingId[ord.id] ? (
+                                                            <>
+                                                              <span className="animate-spin rounded-full h-3.5 w-3.5 border-2 border-primary-foreground border-t-transparent" />
+                                                              Sending Notifications...
+                                                            </>
+                                                          ) : (
+                                                            "Save Tracking & Notify"
+                                                          )}
                                                         </button>
                                                       </div>
+                                                      
                                                       {ord.tracking_id && (
-                                                        <p className="text-[10px] text-muted-foreground">
-                                                          Current Tracking: <span className="font-mono font-bold text-foreground">{ord.tracking_id}</span>
-                                                        </p>
+                                                        <div className="text-[10px] text-muted-foreground bg-muted/40 p-2 rounded-lg border border-border/30 flex flex-col gap-0.5">
+                                                          <div><strong>Courier:</strong> {ord.courier_name || "India Post"}</div>
+                                                          <div><strong>Tracking Number:</strong> <span className="font-mono">{ord.tracking_id}</span></div>
+                                                        </div>
                                                       )}
                                                     </div>
 

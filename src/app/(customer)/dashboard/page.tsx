@@ -758,17 +758,25 @@ function DashboardContent() {
 
                         {/* Shipment Tracking details */}
                         {ord.tracking_id && (
-                          <div className="mt-3.5 bg-primary/5 border border-primary/20 p-3 rounded-xl flex flex-col gap-1">
+                          <div className="mt-3.5 bg-primary/5 border border-primary/20 p-3 rounded-xl flex flex-col gap-1.5">
                             <span className="text-[10px] font-bold uppercase text-primary tracking-wider">Shipment Tracking</span>
-                            <div className="flex justify-between items-center gap-2">
-                              <span>
-                                Tracking ID: <span className="font-mono font-bold text-foreground">{ord.tracking_id}</span>
-                              </span>
+                            <div className="text-xs text-muted-foreground flex flex-col gap-0.5">
+                              <div><strong>Courier:</strong> {ord.courier_name || "India Post"}</div>
+                              <div>
+                                <strong>Tracking ID:</strong> <span className="font-mono font-bold text-foreground">{ord.tracking_id}</span>
+                              </div>
+                            </div>
+                            <div className="flex justify-between items-center gap-2 mt-1 pt-1.5 border-t border-primary/10">
+                              <span className="text-[10px] text-muted-foreground">Status: {ord.status.toUpperCase()}</span>
                               <a
-                                href="https://www.indiapost.gov.in/_layouts/15/dop.portal.tracking/trackconsignment.aspx"
+                                href={
+                                  (ord.courier_name || "India Post").toLowerCase().includes("india post")
+                                    ? "https://www.indiapost.gov.in/_layouts/15/dop.portal.tracking/trackconsignment.aspx"
+                                    : "https://www.indiapost.gov.in/_layouts/15/dop.portal.tracking/trackconsignment.aspx"
+                                }
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="text-[10px] font-bold text-primary hover:underline"
+                                className="text-[10px] font-bold text-primary hover:underline flex items-center gap-1"
                               >
                                 Track Package →
                               </a>

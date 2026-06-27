@@ -36,6 +36,7 @@ export interface Order {
   razorpay_order_id?: string;
   address?: string;
   tracking_id?: string | null;
+  courier_name?: string | null;
   created_at: string;
   items?: OrderItem[];
 }
