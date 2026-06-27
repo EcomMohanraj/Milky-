@@ -182,8 +182,8 @@ export default function ContactPage() {
               </li>
               <li className="flex gap-3 items-center">
                 <Mail className="h-4.5 w-4.5 text-primary shrink-0" />
-                <a href="mailto:fresh@milkymushrooms.com" className="text-muted-foreground hover:text-primary transition-colors">
-                  fresh@milkymushrooms.com
+                <a href="mailto:orders@milkymushroom.in" className="text-muted-foreground hover:text-primary transition-colors">
+                  orders@milkymushroom.in
                 </a>
               </li>
             </ul>
