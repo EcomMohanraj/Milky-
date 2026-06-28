@@ -212,7 +212,7 @@ export default function AdminDashboardPage() {
         name: prodName,
         slug: prodSlug,
         description: prodDesc,
-        image: prodImg || "/images/fresh_milky_mushrooms.png",
+        image: prodImg || "/images/fresh_milky_mushrooms.webp",
         price: Number(prodPrice),
         stock: Number(prodStock),
         category: prodCategory,

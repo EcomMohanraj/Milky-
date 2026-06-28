@@ -140,7 +140,7 @@ const loadMockDb = (): MockDb => {
         name: "Premium Fresh Milky Mushrooms",
         slug: "premium-fresh-milky-mushrooms",
         description: "Freshly harvested organic Milky Mushrooms (Calocybe indica) directly from our farm beds. These mushrooms are known for their firm, meaty texture, milky white appearance, and long shelf life. Perfect for stir-fries, soups, and curries.",
-        image: "/images/fresh_milky_mushrooms.png",
+        image: "/images/fresh_milky_mushrooms.webp",
         price: 240.0,
         stock: 100,
         category: "Fresh",
@@ -158,7 +158,7 @@ const loadMockDb = (): MockDb => {
         name: "Dehydrated Milky Mushroom Slices",
         slug: "dehydrated-milky-mushroom-slices",
         description: "Premium sundried Milky Mushroom slices with intense earthy aroma. Dehydrated at optimal temperatures to preserve nutrients and prolong shelf-life up to 6 months. Rehydrate in warm water for 15 minutes before cooking.",
-        image: "/images/dried_milky_mushrooms.png",
+        image: "/images/dried_milky_mushrooms.webp",
         price: 350.0,
         stock: 50,
         category: "Dried",
@@ -176,7 +176,7 @@ const loadMockDb = (): MockDb => {
         name: "Milky Mushroom Cultivation Spawn",
         slug: "milky-mushroom-spawn",
         description: "High-quality, laboratory-grown, fully colonized grain spawn of Calocybe indica. Cultivated on sorghum grains under strict sterile conditions. Ideal for mushroom growers looking to inoculate straw beds.",
-        image: "/images/milky_mushroom_spawn.png",
+        image: "/images/milky_mushroom_spawn.webp",
         price: 120.0,
         stock: 200,
         category: "Spawn",
@@ -190,7 +190,7 @@ const loadMockDb = (): MockDb => {
         name: "Organic Milky Mushroom Powder",
         slug: "organic-milky-mushroom-powder",
         description: "100% pure organic Milky Mushroom powder. Ground from dried, selected mushrooms, rich in vitamins and immune-supporting beta-glucans. Add to soups, smoothies, or baking flour for a nutritious boost.",
-        image: "/images/milky_mushroom_powder.png",
+        image: "/images/milky_mushroom_powder.webp",
         price: 450.0,
         stock: 30,
         category: "Powder",
@@ -227,7 +227,7 @@ const loadMockDb = (): MockDb => {
 3. **Add Masalas**: Add ginger-garlic paste, fry for 1 minute, then add tomato and stir in the spices. Cook until oil separates.
 4. **Cook Mushrooms**: Add chopped mushrooms. Do not add water; mushrooms release their own moisture.
 5. **Finish**: Sauté on medium-high heat for 8-10 minutes until mushrooms are tender and dry. Sprinkle black pepper, garnish, and serve hot!`,
-        image: "/images/spicy_mushroom_fry.png",
+        image: "/images/spicy_mushroom_fry.webp",
         created_at: new Date().toISOString()
       },
       {
@@ -253,7 +253,7 @@ const loadMockDb = (): MockDb => {
 4. **Thicken**: Sprinkle flour over mushrooms, stir well for 1 minute.
 5. **Simmer**: Slowly pour in broth while whisking to avoid lumps. Bring to a boil, reduce heat, and simmer for 10 minutes.
 6. **Finish**: Stir in fresh cream, salt, and pepper. Simmer for 1 minute and serve warm.`,
-        image: "/images/creamy_mushroom_soup.png",
+        image: "/images/creamy_mushroom_soup.webp",
         created_at: new Date().toISOString()
       },
       {
@@ -982,7 +982,7 @@ export const initDb = async () => {
         name: "Premium Fresh Milky Mushrooms",
         slug: "premium-fresh-milky-mushrooms",
         description: "Freshly harvested organic Milky Mushrooms (Calocybe indica) directly from our farm beds. These mushrooms are known for their firm, meaty texture, milky white appearance, and long shelf life. Perfect for stir-fries, soups, and curries.",
-        image: "/images/fresh_milky_mushrooms.png",
+        image: "/images/fresh_milky_mushrooms.webp",
         price: 240.0,
         stock: 100,
         category: "Fresh",
@@ -999,7 +999,7 @@ export const initDb = async () => {
         name: "Dehydrated Milky Mushroom Slices",
         slug: "dehydrated-milky-mushroom-slices",
         description: "Premium sundried Milky Mushroom slices with intense earthy aroma. Dehydrated at optimal temperatures to preserve nutrients and prolong shelf-life up to 6 months. Rehydrate in warm water for 15 minutes before cooking.",
-        image: "/images/dried_milky_mushrooms.png",
+        image: "/images/dried_milky_mushrooms.webp",
         price: 350.0,
         stock: 50,
         category: "Dried",
@@ -1016,7 +1016,7 @@ export const initDb = async () => {
         name: "Milky Mushroom Cultivation Spawn",
         slug: "milky-mushroom-spawn",
         description: "High-quality, laboratory-grown, fully colonized grain spawn of Calocybe indica. Cultivated on sorghum grains under strict sterile conditions. Ideal for mushroom growers looking to inoculate straw beds.",
-        image: "/images/milky_mushroom_spawn.png",
+        image: "/images/milky_mushroom_spawn.webp",
         price: 120.0,
         stock: 200,
         category: "Spawn",
@@ -1029,7 +1029,7 @@ export const initDb = async () => {
         name: "Organic Milky Mushroom Powder",
         slug: "organic-milky-mushroom-powder",
         description: "100% pure organic Milky Mushroom powder. Ground from dried, selected mushrooms, rich in vitamins and immune-supporting beta-glucans. Add to soups, smoothies, or baking flour for a nutritious boost.",
-        image: "/images/milky_mushroom_powder.png",
+        image: "/images/milky_mushroom_powder.webp",
         price: 450.0,
         stock: 30,
         category: "Powder",
@@ -1075,7 +1075,7 @@ export const initDb = async () => {
 3. **Add Masalas**: Add ginger-garlic paste, fry for 1 minute, then add tomato and stir in the spices. Cook until oil separates.
 4. **Cook Mushrooms**: Add chopped mushrooms. Do not add water; mushrooms release their own moisture.
 5. **Finish**: Sauté on medium-high heat for 8-10 minutes until mushrooms are tender and dry. Sprinkle black pepper, garnish, and serve hot!`,
-        image: "/images/spicy_mushroom_fry.png"
+        image: "/images/spicy_mushroom_fry.webp"
       };
 
       const b2 = {
@@ -1100,7 +1100,7 @@ export const initDb = async () => {
 4. **Thicken**: Sprinkle flour over mushrooms, stir well for 1 minute.
 5. **Simmer**: Slowly pour in broth while whisking to avoid lumps. Bring to a boil, reduce heat, and simmer for 10 minutes.
 6. **Finish**: Stir in fresh cream, salt, and pepper. Simmer for 1 minute and serve warm.`,
-        image: "/images/creamy_mushroom_soup.png"
+        image: "/images/creamy_mushroom_soup.webp"
       };
 
       const b3 = {

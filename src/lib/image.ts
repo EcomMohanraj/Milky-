@@ -1,5 +1,5 @@
 export function getProductImageUrl(imagePath: string | null | undefined): string {
-  if (!imagePath) return "/images/fresh_milky_mushrooms.png";
+  if (!imagePath) return "/images/fresh_milky_mushrooms.webp";
   
   if (
     imagePath.startsWith("http://") ||
@@ -12,7 +12,7 @@ export function getProductImageUrl(imagePath: string | null | undefined): string
   // Construct Supabase public storage URL
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   if (!supabaseUrl || supabaseUrl === "https://mock-project.supabase.co" || supabaseUrl === "https://your-project-id.supabase.co") {
-    return "/images/fresh_milky_mushrooms.png";
+    return "/images/fresh_milky_mushrooms.webp";
   }
   
   // Clean up supabaseUrl (remove trailing slash if present)
