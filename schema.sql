@@ -280,13 +280,13 @@ VALUES
   'Chettinad Milky Mushroom Gravy',
   'chettinad-milky-mushroom-gravy',
   'A rich, aromatic Chettinad-style curry made with fresh ground spices. Ingredients:\n- 250g Milky Mushrooms\n- 10 Shallots (chopped)\n- 2 Tomatoes (pureed)\n- 1 tbsp Chettinad masala powder\n- 1/2 cup Coconut milk\n- Mustard seeds, fennel seeds, oil\n\nMethod:\n1. Clean and slice mushrooms.\n2. Heat oil in a pan, temper with mustard and fennel seeds.\n3. Add shallots and sauté until golden brown.\n4. Add tomatoes and cook until soft.\n5. Add Chettinad masala, salt, and mushrooms. Cover and cook on medium for 6 minutes.\n6. Pour in coconut milk and simmer on low for 3 minutes. Garnish with fresh coriander leaves.',
-  'https://images.unsplash.com/photo-1626132647523-66f5bf380027?auto=format&fit=crop&q=80&w=600'
+  '/images/chettinad_mushroom_gravy.webp'
 ),
 (
   'Organic Milky Mushroom Biryani',
   'organic-milky-mushroom-biryani',
   'A classic, fragrant biryani loaded with meaty Milky Mushrooms. Ingredients:\n- 300g Milky Mushrooms (cubed)\n- 2 cups Basmati Rice (soaked)\n- 1/4 cup Mint & Coriander leaves\n- 1/2 cup Curd\n- 2 tsp Biryani Masala\n- Saffron milk, Ghee, Spices\n\nMethod:\n1. Clean and chop mushrooms.\n2. Heat ghee, fry whole spices (bay leaf, cardamom, cloves).\n3. Sauté onions till brown, add ginger-garlic paste and mint-coriander leaves.\n4. Mix in tomatoes, biryani masala, curd, and mushrooms. Cook for 5 minutes.\n5. In a separate pot, cook Basmati rice till 70% done.\n6. Layer rice over the mushroom masala, drizzle saffron milk and ghee.\n7. Close lid, seal edges, and cook on low heat (dum) for 15 minutes. Serve with raita!',
-  'https://images.unsplash.com/photo-1633945274405-b6c8069047b0?auto=format&fit=crop&q=80&w=600'
+  '/images/organic_mushroom_biryani.webp'
 )
 ON CONFLICT (slug) DO UPDATE SET
   title = EXCLUDED.title,

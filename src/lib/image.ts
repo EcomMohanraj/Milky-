@@ -1,5 +1,13 @@
 export function getProductImageUrl(imagePath: string | null | undefined): string {
   if (!imagePath) return "/images/fresh_milky_mushrooms.webp";
+
+  // Redirect legacy Unsplash recipe images to optimized local WebP assets
+  if (imagePath.includes("photo-1626132647523-66f5bf380027")) {
+    return "/images/chettinad_mushroom_gravy.webp";
+  }
+  if (imagePath.includes("photo-1633945274405-b6c8069047b0")) {
+    return "/images/organic_mushroom_biryani.webp";
+  }
   
   // Clean up legacy PNG extensions to WebP dynamically
   let cleanPath = imagePath;
