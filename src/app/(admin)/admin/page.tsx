@@ -93,7 +93,7 @@ export default function AdminDashboardPage() {
       // Load all product reviews
       const allReviews: Review[] = [];
       for (const p of pData) {
-        const revs = await productService.getReviews(p.id);
+        const { reviews: revs } = await productService.getReviews(p.id);
         allReviews.push(...revs);
       }
       setReviews(allReviews);

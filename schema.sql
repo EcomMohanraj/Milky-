@@ -159,7 +159,16 @@ CREATE POLICY "Allow public read-only of reviews" ON public.reviews
   FOR SELECT USING (true);
 
 CREATE POLICY "Allow users to manage their own reviews" ON public.reviews 
-  FOR ALL USING (auth.uid() = user_id);
+  FOR ALL USING (
+    auth.uid() = user_id
+    AND EXISTS (
+      SELECT 1 FROM public.orders o
+      JOIN public.order_items oi ON o.id = oi.order_id
+      WHERE o.user_id = auth.uid()
+        AND oi.product_id = reviews.product_id
+        AND o.status IN ('paid', 'shipped', 'delivered')
+    )
+  );
 
 
 -- 7. Blog Posts Table

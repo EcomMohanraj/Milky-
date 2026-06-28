@@ -58,6 +58,8 @@ export interface Review {
   comment?: string;
   created_at: string;
   user_name?: string;
+  product_name?: string;
+  location?: string;
 }
 
 export interface Address {

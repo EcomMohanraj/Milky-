@@ -18,26 +18,30 @@ import {
   MessageCircle,
 } from "lucide-react";
 import { productService } from "@/services/product.service";
-import { Product } from "@/types";
+import { Product, Review } from "@/types";
 import ProductCard from "@/features/products/components/ProductCard";
 
 export default function HomePage() {
   const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
+  const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
 
   useEffect(() => {
-    const fetchProducts = async () => {
+    const fetchData = async () => {
       try {
-        const data = await productService.getProducts();
-        setFeaturedProducts(data.slice(0, 3)); // show top 3 featured products
+        const prodData = await productService.getProducts();
+        setFeaturedProducts(prodData.slice(0, 3)); // show top 3 featured products
+        
+        const revsData = await productService.getTopReviews();
+        setReviews(revsData);
       } catch (err) {
         console.error(err);
       } finally {
         setLoading(false);
       }
     };
-    fetchProducts();
+    fetchData();
   }, []);
 
   const whyChooseUs = [
@@ -109,26 +113,7 @@ export default function HomePage() {
     },
   ];
 
-  const customerReviews = [
-    {
-      name: "Senthil Kumar",
-      location: "Palani",
-      rating: 5,
-      comment: "I purchased fresh Milky Mushrooms for our family biryani. The texture was exactly like paneer or chicken, and it stayed fresh in my fridge for 10 days! Remarkable quality.",
-    },
-    {
-      name: "Meenakshi R.",
-      location: "Dindigul",
-      rating: 5,
-      comment: "Highly recommend the dried slices. I rehydrated them for soup, and the flavor was outstanding. Happy to see organic farm practices close to home.",
-    },
-    {
-      name: "Dr. Vinoth",
-      location: "Kodaikanal",
-      rating: 5,
-      comment: "Great source of plant protein for my vegetarian diet. Excellent customer service, very prompt WhatsApp replies, and fresh delivery.",
-    },
-  ];
+
 
   const faqs = [
     {
@@ -384,24 +369,37 @@ export default function HomePage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {customerReviews.map((rev, idx) => (
-            <div key={idx} className="bg-card p-6 rounded-2xl border border-border/60 shadow-sm flex flex-col justify-between">
-              <div>
-                <div className="flex gap-1 mb-3">
-                  {[...Array(rev.rating)].map((_, i) => (
-                    <span key={i} className="text-amber-500 font-bold text-lg">★</span>
-                  ))}
-                </div>
-                <p className="text-xs text-muted-foreground italic leading-relaxed">
-                  &ldquo;{rev.comment}&rdquo;
-                </p>
-              </div>
-              <div className="border-t border-border mt-5 pt-4 flex justify-between items-center text-xs">
-                <span className="font-bold text-foreground">{rev.name}</span>
-                <span className="text-primary font-semibold">{rev.location}</span>
-              </div>
+          {reviews.length === 0 ? (
+            <div className="md:col-span-3 text-center py-10 bg-card border border-border/40 rounded-2xl">
+              <p className="text-xs text-muted-foreground italic">No reviews yet. Be the first to leave one!</p>
             </div>
-          ))}
+          ) : (
+            reviews.map((rev, idx) => (
+              <div key={rev.id || idx} className="bg-card p-6 rounded-2xl border border-border/60 shadow-sm flex flex-col justify-between">
+                <div>
+                  <div className="flex justify-between items-start mb-3">
+                    <div className="flex gap-0.5">
+                      {[...Array(rev.rating)].map((_, i) => (
+                        <span key={i} className="text-amber-500 font-bold text-base">★</span>
+                      ))}
+                    </div>
+                    {rev.product_name && (
+                      <span className="text-[9px] font-bold px-2 py-0.5 bg-primary/10 text-primary rounded-full uppercase tracking-wider max-w-[150px] truncate">
+                        {rev.product_name}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-xs text-muted-foreground italic leading-relaxed">
+                    &ldquo;{rev.comment && rev.comment.length > 120 ? `${rev.comment.substring(0, 120)}...` : rev.comment}&rdquo;
+                  </p>
+                </div>
+                <div className="border-t border-border mt-5 pt-4 flex justify-between items-center text-xs">
+                  <span className="font-bold text-foreground">{rev.user_name}</span>
+                  <span className="text-primary font-semibold">{rev.location}</span>
+                </div>
+              </div>
+            ))
+          )}
         </div>
       </section>
 

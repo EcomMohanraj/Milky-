@@ -65,14 +65,29 @@ export const productService = {
   },
 
   // REVIEWS
-  async getReviews(productId: string): Promise<Review[]> {
+  async getReviews(productId: string): Promise<{ reviews: Review[]; canReview: boolean }> {
     try {
       const res = await fetch(`/api/products/${productId}/reviews`);
+      if (!res.ok) return { reviews: [], canReview: false };
+      const data = await res.json();
+      return {
+        reviews: (data.reviews || []) as Review[],
+        canReview: !!data.canReview
+      };
+    } catch (err) {
+      console.error("getReviews error:", err);
+      return { reviews: [], canReview: false };
+    }
+  },
+
+  async getTopReviews(): Promise<Review[]> {
+    try {
+      const res = await fetch("/api/reviews");
       if (!res.ok) return [];
       const data = await res.json();
       return data.reviews as Review[];
     } catch (err) {
-      console.error("getReviews error:", err);
+      console.error("getTopReviews error:", err);
       return [];
     }
   },
