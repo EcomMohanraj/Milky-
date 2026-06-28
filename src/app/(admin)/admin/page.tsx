@@ -15,14 +15,14 @@ import {
   Lock,
   Tag,
 } from "lucide-react";
-import { useAuth } from "@/contexts/AuthContext";
 import { productService } from "@/services/product.service";
 import { orderService } from "@/services/order.service";
 import { Order, Product, Review, BlogPost } from "@/types";
 import { useToast } from "@/components/ui/toast-simple";
+import { useRequireAuth } from "@/hooks/useRequireAuth";
 
 export default function AdminDashboardPage() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading } = useRequireAuth();
   const { toast } = useToast();
 
   const [activeTab, setActiveTab] = useState<"orders" | "products" | "reviews" | "coupons" | "blogs">("orders");
@@ -322,8 +322,12 @@ export default function AdminDashboardPage() {
     );
   }
 
+  if (!user) {
+    return null;
+  }
+
   // AUTHORIZATION GUARD
-  if (!user || user.role !== "admin") {
+  if (user.role !== "admin") {
     return (
       <div className="container mx-auto px-4 py-20 flex-grow flex items-center justify-center">
         <div className="bg-card border border-border/80 w-full max-w-md p-8 rounded-3xl shadow-xl text-center flex flex-col items-center gap-5">

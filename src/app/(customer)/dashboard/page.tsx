@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState, Suspense, useCallback } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -21,6 +21,7 @@ import { useCart } from "@/contexts/CartContext";
 import { orderService } from "@/services/order.service";
 import { Address, Order } from "@/types";
 import { useToast } from "@/components/ui/toast-simple";
+import { useRequireAuth } from "@/hooks/useRequireAuth";
 
 const addressSchema = z.object({
   address: z.string().min(5, { message: "Address must be at least 5 characters." }),
@@ -33,8 +34,8 @@ type AddressFormValues = z.infer<typeof addressSchema>;
 
 function DashboardContent() {
   const searchParams = useSearchParams();
-  const router = useRouter();
-  const { user, loading: authLoading, updateProfile } = useAuth();
+  const { updateProfile } = useAuth();
+  const { user, loading: authLoading } = useRequireAuth();
   const { cart, cartTotal, clearCart } = useCart();
   const { toast } = useToast();
 
@@ -66,12 +67,7 @@ function DashboardContent() {
     },
   });
 
-  // Redirect unauthorized users to login
-  useEffect(() => {
-    if (!authLoading && !user) {
-      router.push("/login");
-    }
-  }, [user, authLoading, router]);
+
 
   const loadUserData = useCallback(async () => {
     if (!user) return;
@@ -114,7 +110,18 @@ function DashboardContent() {
     }
   }, [searchParams, cart]);
 
+  if (authLoading) {
+    return (
+      <div className="container mx-auto px-4 py-20 flex flex-col items-center justify-center gap-3 flex-grow">
+        <span className="animate-spin rounded-full h-8 w-8 border-2 border-primary border-t-transparent" />
+        <span className="font-bold text-xs text-muted-foreground uppercase tracking-wide">Loading Account Hub...</span>
+      </div>
+    );
+  }
 
+  if (!user) {
+    return null;
+  }
 
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
