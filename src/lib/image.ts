@@ -1,12 +1,18 @@
 export function getProductImageUrl(imagePath: string | null | undefined): string {
   if (!imagePath) return "/images/fresh_milky_mushrooms.webp";
   
+  // Clean up legacy PNG extensions to WebP dynamically
+  let cleanPath = imagePath;
+  if (cleanPath.endsWith(".png")) {
+    cleanPath = cleanPath.replace(/\.png$/, ".webp");
+  }
+  
   if (
-    imagePath.startsWith("http://") ||
-    imagePath.startsWith("https://") ||
-    imagePath.startsWith("/")
+    cleanPath.startsWith("http://") ||
+    cleanPath.startsWith("https://") ||
+    cleanPath.startsWith("/")
   ) {
-    return imagePath;
+    return cleanPath;
   }
   
   // Construct Supabase public storage URL
@@ -20,7 +26,7 @@ export function getProductImageUrl(imagePath: string | null | undefined): string
   
   // If the image path already starts with the bucket name 'products/' or contains a slash,
   // we just append it. Otherwise, prepend 'products/'.
-  const path = imagePath.startsWith("products/") ? imagePath : `products/${imagePath}`;
+  const path = cleanPath.startsWith("products/") ? cleanPath : `products/${cleanPath}`;
   
   return `${baseUrl}/storage/v1/object/public/${path}`;
 }
