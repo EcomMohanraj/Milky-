@@ -16,7 +16,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
       [id]
     );
 
-    // Check if the current logged-in user can leave a review (verified purchase)
+    // Check if the current logged-in user can leave a review
     let canReview = false;
     try {
       const cookieStore = await cookies();
@@ -25,17 +25,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
         const secret = process.env.SESSION_SECRET || "milky-mushrooms-super-secret-key-15803d-green";
         const decoded = await verifyJwt(token, secret);
         if (decoded && decoded.id) {
-          const checkRes = await query(
-            `SELECT 1 
-             FROM public.orders o
-             JOIN public.order_items oi ON o.id = oi.order_id
-             WHERE o.user_id = $1 
-               AND oi.product_id = $2 
-               AND o.status IN ('paid', 'shipped', 'delivered')
-             LIMIT 1`,
-            [decoded.id as string, id]
-          );
-          canReview = checkRes.rows.length > 0;
+          canReview = true;
         }
       }
     } catch (e) {
@@ -68,24 +58,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       return NextResponse.json({ error: "Rating must be between 1 and 5." }, { status: 400 });
     }
 
-    // Verify purchase status
-    const checkRes = await query(
-      `SELECT 1 
-       FROM public.orders o
-       JOIN public.order_items oi ON o.id = oi.order_id
-       WHERE o.user_id = $1 
-         AND oi.product_id = $2 
-         AND o.status IN ('paid', 'shipped', 'delivered')
-       LIMIT 1`,
-      [decoded.id as string, id]
-    );
-
-    if (checkRes.rows.length === 0) {
-      return NextResponse.json(
-        { error: "Only customers who have purchased this product can leave a review." }, 
-        { status: 403 }
-      );
-    }
+    // Allow any authenticated user to leave a review (bypass verified purchase status)
 
     const res = await query(
       `INSERT INTO public.reviews (product_id, user_id, rating, comment)

@@ -33,7 +33,7 @@ export async function middleware(request: NextRequest) {
     const secret = process.env.SESSION_SECRET || "milky-mushrooms-super-secret-key-15803d-green";
     const decoded = await verifyJwt(token, secret);
     if (decoded) {
-      return NextResponse.redirect(new URL("/dashboard", request.url));
+      return NextResponse.redirect(new URL("/shop", request.url));
     }
   }
 
