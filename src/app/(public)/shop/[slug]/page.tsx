@@ -298,7 +298,7 @@ export default function ProductDetailsPage({ params }: PageProps) {
       </div>
 
       {/* REVIEWS & FEEDBACK */}
-      <section className="mt-20 border-t border-border pt-16 max-w-4xl">
+      <section id="reviews" className="mt-20 border-t border-border pt-16 max-w-4xl">
         <h2 className="text-2xl font-extrabold text-foreground mb-8 flex items-center gap-2 font-outfit">
           <MessageSquare className="w-6 h-6 text-primary" />
           Customer Feedback ({reviews.length})

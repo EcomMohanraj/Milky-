@@ -8,7 +8,12 @@ export async function GET() {
        FROM public.reviews r 
        JOIN public.users u ON r.user_id = u.id 
        JOIN public.products p ON r.product_id = p.id
-       LEFT JOIN public.addresses a ON a.user_id = u.id AND a.is_default = true 
+       LEFT JOIN (
+         SELECT DISTINCT ON (user_id) user_id, city 
+         FROM public.addresses 
+         WHERE is_default = true 
+         ORDER BY user_id, created_at DESC
+       ) a ON a.user_id = u.id
        WHERE r.rating >= 4 
        ORDER BY r.rating DESC, r.created_at DESC 
        LIMIT 6`

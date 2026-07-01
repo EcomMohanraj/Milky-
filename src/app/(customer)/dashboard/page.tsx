@@ -731,10 +731,20 @@ function DashboardContent() {
                         <div className="flex flex-col gap-2.5">
                           {ord.items?.map((item) => (
                             <div key={item.id} className="flex justify-between items-center text-[11px]">
-                              <span className="font-bold text-foreground">
-                                {item.product?.name || "Premium Milky Mushrooms"}{" "}
-                                <span className="text-muted-foreground font-semibold">x{item.quantity}</span>
-                              </span>
+                              <div className="flex flex-col gap-0.5">
+                                <span className="font-bold text-foreground">
+                                  {item.product?.name || "Premium Milky Mushrooms"}{" "}
+                                  <span className="text-muted-foreground font-semibold">x{item.quantity}</span>
+                                </span>
+                                {item.product?.slug && (
+                                  <Link
+                                    href={`/shop/${item.product.slug}#reviews`}
+                                    className="text-[9px] font-extrabold text-primary hover:underline self-start mt-0.5"
+                                  >
+                                    Write a Review
+                                  </Link>
+                                )}
+                              </div>
                               <span className="font-extrabold text-foreground">₹{(item.price * item.quantity).toFixed(2)}</span>
                             </div>
                           ))}
