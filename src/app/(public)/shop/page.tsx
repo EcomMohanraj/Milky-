@@ -128,19 +128,19 @@ function ShopContent() {
             placeholder="Search fresh mushrooms..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-border bg-background text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+            className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-border bg-background text-base md:text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
           />
         </div>
 
         {/* Filter categories & parameters */}
-        <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto justify-start lg:justify-end">
+        <div className="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto justify-start lg:justify-end">
           {/* Sort Select */}
-          <div className="flex items-center gap-2 border border-border bg-background rounded-xl px-3 py-1.5 shrink-0">
+          <div className="flex items-center gap-2 border border-border bg-background rounded-xl px-4 py-2.5 md:px-3 md:py-1.5 shrink-0 w-full sm:w-auto justify-between sm:justify-start">
             <SlidersHorizontal className="h-4.5 w-4.5 text-muted-foreground" />
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="text-xs font-semibold text-foreground bg-transparent border-none focus:outline-none cursor-pointer"
+              className="text-base md:text-xs font-semibold text-foreground bg-transparent border-none focus:outline-none cursor-pointer w-full sm:w-auto"
             >
               <option value="featured">Featured</option>
               <option value="price-asc">Price: Low to High</option>
@@ -152,7 +152,7 @@ function ShopContent() {
           {/* Wishlist Toggle */}
           <button
             onClick={() => setShowWishlistOnly(!showWishlistOnly)}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold border transition-all shrink-0 bg-background text-muted-foreground border-border hover:text-foreground data-[active=true]:bg-red-500 data-[active=true]:text-white data-[active=true]:border-red-500 data-[active=true]:shadow-sm"
+            className="flex items-center gap-1.5 px-4 py-3 md:py-2 rounded-xl text-sm md:text-xs font-bold border transition-all shrink-0 bg-background text-muted-foreground border-border hover:text-foreground data-[active=true]:bg-red-500 data-[active=true]:text-white data-[active=true]:border-red-500 data-[active=true]:shadow-sm w-full sm:w-auto justify-center"
             data-active={showWishlistOnly}
           >
             <Heart className={`h-4 w-4 ${showWishlistOnly ? "fill-current" : ""}`} />
@@ -199,7 +199,7 @@ function ShopContent() {
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className="px-5 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all border bg-card text-muted-foreground border-border data-[active=true]:bg-primary data-[active=true]:text-primary-foreground data-[active=true]:border-primary data-[active=true]:shadow-sm"
+                className="px-5 py-3.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all border bg-card text-muted-foreground border-border data-[active=true]:bg-primary data-[active=true]:text-primary-foreground data-[active=true]:border-primary data-[active=true]:shadow-sm"
                 data-active={isActive}
               >
                 {cat}

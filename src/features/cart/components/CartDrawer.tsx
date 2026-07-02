@@ -46,7 +46,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose, onCheck
               </div>
               <button
                 onClick={onClose}
-                className="p-2 hover:bg-muted text-muted-foreground hover:text-foreground rounded-lg transition-colors"
+                className="p-3 md:p-2 hover:bg-muted text-muted-foreground hover:text-foreground rounded-lg transition-colors"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -109,17 +109,17 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose, onCheck
                         <div className="flex items-center border border-border rounded-lg bg-card overflow-hidden">
                           <button
                             onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
-                            className="p-1 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                            className="p-4 md:p-1 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
                             aria-label="Decrease quantity"
                           >
                             <Minus className="h-3 w-3" />
                           </button>
-                          <span className="px-2.5 text-xs font-bold text-foreground">
+                          <span className="px-3.5 md:px-2.5 text-sm md:text-xs font-bold text-foreground">
                             {item.quantity}
                           </span>
                           <button
                             onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
-                            className="p-1 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                            className="p-4 md:p-1 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
                             aria-label="Increase quantity"
                           >
                             <Plus className="h-3 w-3" />
@@ -129,7 +129,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose, onCheck
                         {/* Remove Button */}
                         <button
                           onClick={() => removeFromCart(item.product.id)}
-                          className="text-red-500 p-1 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors"
+                          className="text-red-500 p-3.5 md:p-1 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors"
                           aria-label="Remove item"
                         >
                           <Trash2 className="h-4 w-4" />
@@ -153,10 +153,10 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose, onCheck
                   Shipping and taxes calculated at checkout. Free farm-fresh delivery within our support areas!
                 </p>
 
-                <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row gap-2">
                   <button
                     onClick={onClose}
-                    className="flex-1 py-3 bg-secondary text-secondary-foreground font-bold text-sm rounded-xl hover:bg-secondary/80 text-center transition-all"
+                    className="w-full sm:flex-1 py-3 bg-secondary text-secondary-foreground font-bold text-sm rounded-xl hover:bg-secondary/80 text-center transition-all"
                   >
                     Continue Shopping
                   </button>
@@ -165,7 +165,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose, onCheck
                       if (onCheckoutClick) onCheckoutClick();
                       onClose();
                     }}
-                    className="flex-1 py-3 bg-primary text-primary-foreground font-bold text-sm rounded-xl hover:bg-primary/95 text-center shadow-md shadow-primary/10 transition-all"
+                    className="w-full sm:flex-1 py-3 bg-primary text-primary-foreground font-bold text-sm rounded-xl hover:bg-primary/95 text-center shadow-md shadow-primary/10 transition-all"
                   >
                     Checkout Now
                   </button>

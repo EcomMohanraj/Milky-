@@ -236,14 +236,14 @@ export default function ProductDetailsPage({ params }: PageProps) {
                 <div className="flex items-center border border-border rounded-xl bg-card overflow-hidden">
                   <button
                     onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                    className="p-2.5 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                    className="p-3.5 md:p-2.5 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
                   >
                     -
                   </button>
                   <span className="px-5 text-sm font-extrabold text-foreground">{quantity}</span>
                   <button
                     onClick={() => setQuantity((q) => Math.min(product.stock, q + 1))}
-                    className="p-2.5 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                    className="p-3.5 md:p-2.5 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
                   >
                     +
                   </button>
@@ -251,19 +251,19 @@ export default function ProductDetailsPage({ params }: PageProps) {
               )}
             </div>
 
-            <div className="flex flex-wrap gap-3 w-full">
+            <div className="flex flex-col sm:flex-row gap-3 w-full">
               {!isOutOfStock ? (
                 <>
                   <button
                     onClick={handleAddToCart}
-                    className="flex-1 min-w-[150px] py-4 bg-secondary text-secondary-foreground font-bold text-sm rounded-xl hover:bg-secondary/80 flex items-center justify-center gap-2 shadow-sm transition-all"
+                    className="w-full sm:flex-1 py-4 bg-secondary text-secondary-foreground font-bold text-sm rounded-xl hover:bg-secondary/80 flex items-center justify-center gap-2 shadow-sm transition-all"
                   >
                     <ShoppingCart className="w-4 h-4" />
                     Add To Cart
                   </button>
                   <button
                     onClick={handleBuyNow}
-                    className="flex-1 min-w-[150px] py-4 bg-primary text-primary-foreground font-bold text-sm rounded-xl hover:bg-primary/95 text-center shadow-md shadow-primary/10 transition-all"
+                    className="w-full sm:flex-1 py-4 bg-primary text-primary-foreground font-bold text-sm rounded-xl hover:bg-primary/95 text-center shadow-md shadow-primary/10 transition-all"
                   >
                     Buy Now
                   </button>
@@ -284,7 +284,7 @@ export default function ProductDetailsPage({ params }: PageProps) {
       </div>
 
       {/* REVIEWS & FEEDBACK */}
-      <section className="mt-20 border-t border-border pt-16 max-w-4xl">
+      <section className="mt-12 md:mt-20 border-t border-border pt-10 md:pt-16 max-w-4xl">
         <h2 className="text-2xl font-extrabold text-foreground mb-8 flex items-center gap-2 font-outfit">
           <MessageSquare className="w-6 h-6 text-primary" />
           Customer Feedback ({reviews.length})
@@ -302,7 +302,7 @@ export default function ProductDetailsPage({ params }: PageProps) {
                   <select
                     value={rating}
                     onChange={(e) => setRating(Number(e.target.value))}
-                    className="w-full mt-1 border border-border rounded-lg p-2 text-xs text-foreground bg-background focus:outline-none"
+                    className="w-full mt-1 border border-border rounded-lg p-3 md:p-2 text-base md:text-xs text-foreground bg-background focus:outline-none"
                   >
                     <option value={5}>5 Stars (Excellent)</option>
                     <option value={4}>4 Stars (Good)</option>
@@ -320,7 +320,7 @@ export default function ProductDetailsPage({ params }: PageProps) {
                     value={comment}
                     onChange={(e) => setComment(e.target.value)}
                     required
-                    className="w-full mt-1 border border-border rounded-lg p-2 text-xs text-foreground bg-background focus:outline-none"
+                    className="w-full mt-1 border border-border rounded-lg p-3 md:p-2 text-base md:text-xs text-foreground bg-background focus:outline-none"
                   />
                 </div>
 

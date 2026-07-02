@@ -43,21 +43,21 @@ export const Footer: React.FC = () => {
           {/* Quick Links */}
           <div>
             <h3 className="font-bold text-sm uppercase tracking-wider mb-4 text-foreground">Quick Links</h3>
-            <ul className="flex flex-col gap-2.5 text-sm">
+            <ul className="flex flex-col gap-4 md:gap-2.5 text-base md:text-sm">
               <li>
-                <Link href="/" className="text-muted-foreground hover:text-primary transition-colors">Home Page</Link>
+                <Link href="/" className="text-muted-foreground hover:text-primary transition-colors py-1 md:py-0 inline-block">Home Page</Link>
               </li>
               <li>
-                <Link href="/shop" className="text-muted-foreground hover:text-primary transition-colors">Our Shop</Link>
+                <Link href="/shop" className="text-muted-foreground hover:text-primary transition-colors py-1 md:py-0 inline-block">Our Shop</Link>
               </li>
               <li>
-                <Link href="/recipes" className="text-muted-foreground hover:text-primary transition-colors">Mushroom Recipes</Link>
+                <Link href="/recipes" className="text-muted-foreground hover:text-primary transition-colors py-1 md:py-0 inline-block">Mushroom Recipes</Link>
               </li>
               <li>
-                <Link href="/about" className="text-muted-foreground hover:text-primary transition-colors">About Our Farm</Link>
+                <Link href="/about" className="text-muted-foreground hover:text-primary transition-colors py-1 md:py-0 inline-block">About Our Farm</Link>
               </li>
               <li>
-                <Link href="/contact" className="text-muted-foreground hover:text-primary transition-colors">Contact Us</Link>
+                <Link href="/contact" className="text-muted-foreground hover:text-primary transition-colors py-1 md:py-0 inline-block">Contact Us</Link>
               </li>
             </ul>
           </div>
@@ -65,7 +65,7 @@ export const Footer: React.FC = () => {
           {/* Contact Details */}
           <div>
             <h3 className="font-bold text-sm uppercase tracking-wider mb-4 text-foreground">Get in Touch</h3>
-            <ul className="flex flex-col gap-3 text-sm">
+            <ul className="flex flex-col gap-4 md:gap-3 text-base md:text-sm">
               <li className="flex gap-2.5 items-start text-muted-foreground">
                 <MapPin className="h-5 w-5 text-primary shrink-0 mt-0.5" />
                 <span>
@@ -76,11 +76,11 @@ export const Footer: React.FC = () => {
               </li>
               <li className="flex gap-2.5 items-center text-muted-foreground">
                 <Phone className="h-4 w-4 text-primary shrink-0" />
-                <a href="tel:+918610755195" className="hover:text-primary transition-colors">+91 86107 55195</a>
+                <a href="tel:+918610755195" className="hover:text-primary transition-colors py-1 md:py-0 inline-block">+91 86107 55195</a>
               </li>
               <li className="flex gap-2.5 items-center text-muted-foreground">
                 <Mail className="h-4 w-4 text-primary shrink-0" />
-                <a href="mailto:fresh@milkymushrooms.com" className="hover:text-primary transition-colors">fresh@milkymushrooms.com</a>
+                <a href="mailto:fresh@milkymushrooms.com" className="hover:text-primary transition-colors py-1 md:py-0 inline-block">fresh@milkymushrooms.com</a>
               </li>
             </ul>
           </div>

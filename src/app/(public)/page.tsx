@@ -157,7 +157,7 @@ export default function HomePage() {
     <div className="flex flex-col w-full pb-16">
       
       {/* HERO SECTION */}
-      <section className="relative bg-gradient-to-br from-secondary/40 via-background to-secondary/20 pt-20 pb-24 overflow-hidden">
+      <section className="relative bg-gradient-to-br from-secondary/40 via-background to-secondary/20 pt-10 pb-16 md:pt-20 md:pb-24 overflow-hidden">
         <div className="container mx-auto px-4 md:px-6 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
           <motion.div
             initial={{ opacity: 0, x: -30 }}
@@ -171,8 +171,8 @@ export default function HomePage() {
             </div>
             
             <h1 className="text-4xl md:text-6xl font-black text-foreground tracking-tight leading-tight font-outfit">
-              Fresh Milky Mushrooms <br />
-              <span className="text-primary">Direct From Farm</span> <br />
+              Fresh Milky Mushrooms <br className="hidden md:inline" />
+              <span className="text-primary">Direct From Farm</span> <br className="hidden md:inline" />
               To Home
             </h1>
             
@@ -180,17 +180,17 @@ export default function HomePage() {
               Experience the premium, meat-like texture and rich protein profiles of freshly harvested organic Milky Mushrooms, delivered straight to your home from our Dindigul beds.
             </p>
 
-            <div className="flex flex-wrap gap-4 mt-2">
+            <div className="flex flex-wrap gap-3 sm:gap-4 mt-2">
               <Link
                 href="/shop"
-                className="px-8 py-3.5 bg-primary text-primary-foreground font-bold rounded-xl hover:bg-primary/95 shadow-lg shadow-primary/10 flex items-center gap-2 group transition-all"
+                className="px-6 py-3.5 sm:px-8 bg-primary text-primary-foreground font-bold rounded-xl hover:bg-primary/95 shadow-lg shadow-primary/10 flex items-center gap-2 group transition-all"
               >
                 Shop Fresh Harvest
                 <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </Link>
               <Link
                 href="/about"
-                className="px-8 py-3.5 bg-card hover:bg-muted border border-border text-foreground font-bold rounded-xl transition-all"
+                className="px-6 py-3.5 sm:px-8 bg-card hover:bg-muted border border-border text-foreground font-bold rounded-xl transition-all"
               >
                 Explore Cultivation
               </Link>
@@ -201,7 +201,7 @@ export default function HomePage() {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.7, delay: 0.2 }}
-            className="relative h-[320px] md:h-[480px] rounded-3xl overflow-hidden shadow-2xl border-4 border-card bg-secondary/30"
+            className="relative h-[240px] sm:h-[320px] md:h-[480px] rounded-3xl overflow-hidden shadow-2xl border-4 border-card bg-secondary/30"
           >
             <Image
               src="/images/fresh_milky_mushrooms.png"
@@ -212,7 +212,7 @@ export default function HomePage() {
             />
             
             {/* Overlay tag */}
-            <div className="absolute bottom-6 right-6 p-4 glass rounded-2xl flex items-center gap-3 shadow-lg max-w-[240px]">
+            <div className="absolute bottom-4 right-4 p-3 sm:bottom-6 sm:right-6 sm:p-4 glass rounded-2xl flex items-center gap-2 sm:gap-3 shadow-lg max-w-[200px] sm:max-w-[240px]">
               <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground shrink-0 font-bold">
                 ₹
               </div>
@@ -236,7 +236,7 @@ export default function HomePage() {
             <span className="font-black text-2xl md:text-3xl">Same Day</span>
             <span className="text-xs font-semibold opacity-90">Harvest & Shipping</span>
           </div>
-          <div className="flex flex-col items-center gap-2 border-l border-primary-foreground/25">
+          <div className="flex flex-col items-center gap-2 border-l-0 md:border-l border-primary-foreground/25">
             <span className="font-black text-2xl md:text-3xl">14 Days</span>
             <span className="text-xs font-semibold opacity-90">Extended Fridge Shelf Life</span>
           </div>
@@ -248,8 +248,8 @@ export default function HomePage() {
       </section>
 
       {/* FEATURED PRODUCTS */}
-      <section className="py-20 container mx-auto px-4 md:px-6">
-        <div className="flex flex-col md:flex-row justify-between items-end gap-4 mb-10">
+      <section className="py-12 md:py-20 container mx-auto px-4 md:px-6">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 mb-8 md:mb-10">
           <div>
             <span className="text-xs font-black uppercase tracking-wider text-primary">Farm Fresh Shop</span>
             <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight mt-1 text-foreground font-outfit">
@@ -281,9 +281,9 @@ export default function HomePage() {
       </section>
 
       {/* WHY CHOOSE US */}
-      <section className="py-20 bg-secondary/15 dark:bg-muted/10 border-y border-border/40">
+      <section className="py-12 md:py-20 bg-secondary/15 dark:bg-muted/10 border-y border-border/40">
         <div className="container mx-auto px-4 md:px-6">
-          <div className="text-center max-w-2xl mx-auto mb-16">
+          <div className="text-center max-w-2xl mx-auto mb-10 md:mb-16">
             <span className="text-xs font-black uppercase tracking-wider text-primary">Key Advantages</span>
             <h2 className="text-3xl md:text-4xl font-extrabold mt-1 text-foreground font-outfit">
               Why Buy Milky Mushrooms?
@@ -315,8 +315,8 @@ export default function HomePage() {
       </section>
 
       {/* HEALTH BENEFITS */}
-      <section className="py-20 container mx-auto px-4 md:px-6">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 items-center">
+      <section className="py-12 md:py-20 container mx-auto px-4 md:px-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12 items-center">
           <div className="flex flex-col gap-5">
             <span className="text-xs font-black uppercase tracking-wider text-primary">Nutritional Powerhouse</span>
             <h2 className="text-3xl md:text-4xl font-extrabold text-foreground font-outfit">
@@ -349,9 +349,9 @@ export default function HomePage() {
       </section>
 
       {/* FARM PROCESS */}
-      <section className="py-20 bg-secondary/15 dark:bg-muted/10 border-y border-border/40">
+      <section className="py-12 md:py-20 bg-secondary/15 dark:bg-muted/10 border-y border-border/40">
         <div className="container mx-auto px-4 md:px-6">
-          <div className="text-center max-w-2xl mx-auto mb-16">
+          <div className="text-center max-w-2xl mx-auto mb-10 md:mb-16">
             <span className="text-xs font-black uppercase tracking-wider text-primary">Cultivation Lifecycle</span>
             <h2 className="text-3xl md:text-4xl font-extrabold mt-1 text-foreground font-outfit">
               Our Eco-Friendly Farm Process
@@ -374,8 +374,8 @@ export default function HomePage() {
       </section>
 
       {/* CUSTOMER REVIEWS */}
-      <section className="py-20 container mx-auto px-4 md:px-6">
-        <div className="text-center max-w-2xl mx-auto mb-14">
+      <section className="py-12 md:py-20 container mx-auto px-4 md:px-6">
+        <div className="text-center max-w-2xl mx-auto mb-8 md:mb-14">
           <span className="text-xs font-black uppercase tracking-wider text-primary">Testimonials</span>
           <h2 className="text-3xl md:text-4xl font-extrabold mt-1 text-foreground font-outfit">
             What Our Customers Say
@@ -405,9 +405,9 @@ export default function HomePage() {
       </section>
 
       {/* FAQ SECTION */}
-      <section className="py-20 bg-secondary/15 dark:bg-muted/10 border-t border-border/40">
+      <section className="py-12 md:py-20 bg-secondary/15 dark:bg-muted/10 border-t border-border/40">
         <div className="container mx-auto px-4 md:px-6 max-w-3xl">
-          <div className="text-center mb-12">
+          <div className="text-center mb-8 md:mb-12">
             <span className="text-xs font-black uppercase tracking-wider text-primary">Queries Answered</span>
             <h2 className="text-3xl md:text-4xl font-extrabold mt-1 text-foreground font-outfit">
               Frequently Asked Questions
@@ -447,8 +447,8 @@ export default function HomePage() {
       </section>
 
       {/* CONTACT CTA SECTION */}
-      <section className="py-20 container mx-auto px-4 md:px-6 max-w-5xl">
-        <div className="bg-primary rounded-3xl text-primary-foreground p-8 md:p-12 relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8 shadow-xl">
+      <section className="py-12 md:py-20 container mx-auto px-4 md:px-6 max-w-5xl">
+        <div className="bg-primary rounded-3xl text-primary-foreground p-6 sm:p-8 md:p-12 relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8 shadow-xl">
           {/* Subtle Background Pattern */}
           <div className="absolute inset-0 bg-black/10 opacity-40 pointer-events-none" />
 
@@ -464,10 +464,10 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div className="relative z-10 flex flex-wrap gap-4 shrink-0">
+          <div className="relative z-10 flex flex-col sm:flex-row gap-3 sm:gap-4 shrink-0 w-full md:w-auto">
             <a
               href="tel:+918610755195"
-              className="px-6 py-3 bg-black/35 hover:bg-black/50 text-white font-bold text-sm rounded-xl flex items-center gap-2 border border-white/10 transition-colors"
+              className="w-full sm:w-auto justify-center px-6 py-3 bg-black/35 hover:bg-black/50 text-white font-bold text-sm rounded-xl flex items-center gap-2 border border-white/10 transition-colors"
             >
               <PhoneCall className="w-4 h-4" />
               Call Farm
@@ -476,7 +476,7 @@ export default function HomePage() {
               href="https://wa.me/918610755195?text=I'd%20like%20to%20place%20an%20order"
               target="_blank"
               rel="noopener noreferrer"
-              className="px-6 py-3 bg-white text-primary font-bold text-sm rounded-xl hover:bg-white/90 shadow-lg shadow-black/10 flex items-center gap-2 transition-colors"
+              className="w-full sm:w-auto justify-center px-6 py-3 bg-white text-primary font-bold text-sm rounded-xl hover:bg-white/90 shadow-lg shadow-black/10 flex items-center gap-2 transition-colors"
             >
               <MessageCircle className="w-4 h-4 fill-primary" />
               Chat on WhatsApp

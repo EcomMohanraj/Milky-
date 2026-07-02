@@ -45,8 +45,8 @@ export const Header: React.FC<HeaderProps> = ({ onCartToggle }) => {
           >
             M
           </motion.div>
-          <span className="font-extrabold text-xl tracking-tight text-primary group-hover:text-primary/90 transition-colors">
-            Milky<span className="text-foreground font-medium">Mushrooms</span>
+          <span className="font-extrabold text-base sm:text-xl tracking-tight text-primary group-hover:text-primary/90 transition-colors">
+            Milky<span className="text-foreground font-medium hidden sm:inline">Mushrooms</span>
           </span>
         </Link>
 
@@ -76,11 +76,11 @@ export const Header: React.FC<HeaderProps> = ({ onCartToggle }) => {
         </nav>
 
         {/* Utilities */}
-        <div className="flex items-center gap-2 md:gap-4">
+        <div className="flex items-center gap-1 sm:gap-2 md:gap-4">
           {/* Theme Toggle */}
           <button
             onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-            className="p-2 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+            className="p-3 md:p-2 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors relative flex items-center justify-center"
             aria-label="Toggle theme"
           >
             <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
@@ -90,7 +90,7 @@ export const Header: React.FC<HeaderProps> = ({ onCartToggle }) => {
           {/* Wishlist Link */}
           <Link
             href="/shop?wishlist=true"
-            className="p-2 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors relative"
+            className="p-3 md:p-2 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors relative"
             aria-label="Wishlist"
           >
             <Heart className="h-5 w-5" />
@@ -102,12 +102,12 @@ export const Header: React.FC<HeaderProps> = ({ onCartToggle }) => {
           {/* Cart Icon */}
           <button
             onClick={onCartToggle}
-            className="p-2 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors relative"
+            className="p-3 md:p-2 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors relative"
             aria-label="Shopping Cart"
           >
             <ShoppingCart className="h-5 w-5" />
             {cartCount > 0 && (
-              <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground font-bold text-[10px] w-5 h-5 rounded-full flex items-center justify-center border-2 border-background shadow-sm">
+              <span className="absolute top-0.5 right-0.5 md:-top-1 md:-right-1 bg-primary text-primary-foreground font-bold text-[10px] w-5 h-5 rounded-full flex items-center justify-center border-2 border-background shadow-sm">
                 {cartCount}
               </span>
             )}
@@ -119,7 +119,7 @@ export const Header: React.FC<HeaderProps> = ({ onCartToggle }) => {
               <>
                 <button
                   onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-                  className="flex items-center gap-1 p-1.5 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                  className="flex items-center gap-1 p-3 md:p-1.5 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
                 >
                   <UserIcon className="h-5 w-5" />
                   <ChevronDown className="h-4 h-4 opacity-50 hidden sm:block" />
@@ -191,7 +191,7 @@ export const Header: React.FC<HeaderProps> = ({ onCartToggle }) => {
           {/* Mobile Menu Button */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-2 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+            className="md:hidden p-3 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
             aria-label="Toggle Menu"
           >
             {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -215,7 +215,7 @@ export const Header: React.FC<HeaderProps> = ({ onCartToggle }) => {
                   key={link.href}
                   href={link.href}
                   onClick={handleLinkClick}
-                  className={`text-base font-semibold py-2 transition-colors hover:text-primary ${
+                  className={`text-base font-semibold py-3 transition-colors hover:text-primary ${
                     pathname === link.href ? "text-primary" : "text-muted-foreground"
                   }`}
                 >
