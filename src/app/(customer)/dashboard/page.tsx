@@ -504,7 +504,7 @@ function DashboardContent() {
                     type="text"
                     placeholder="House No, Street name"
                     {...addressForm.register("address")}
-                    className="border p-2 rounded-lg text-xs text-foreground bg-background"
+                    className="border p-3 md:p-2 rounded-lg text-base md:text-xs text-foreground bg-background"
                   />
                   {addressForm.formState.errors.address && (
                     <span className="text-[10px] text-red-500">{addressForm.formState.errors.address.message}</span>
@@ -517,7 +517,7 @@ function DashboardContent() {
                     type="text"
                     placeholder="e.g. Palani"
                     {...addressForm.register("city")}
-                    className="border p-2 rounded-lg text-xs text-foreground bg-background"
+                    className="border p-3 md:p-2 rounded-lg text-base md:text-xs text-foreground bg-background"
                   />
                   {addressForm.formState.errors.city && (
                     <span className="text-[10px] text-red-500">{addressForm.formState.errors.city.message}</span>
@@ -530,7 +530,7 @@ function DashboardContent() {
                     type="text"
                     placeholder="6-digit pincode"
                     {...addressForm.register("pincode")}
-                    className="border p-2 rounded-lg text-xs text-foreground bg-background"
+                    className="border p-3 md:p-2 rounded-lg text-base md:text-xs text-foreground bg-background"
                   />
                   {addressForm.formState.errors.pincode && (
                     <span className="text-[10px] text-red-500">{addressForm.formState.errors.pincode.message}</span>
@@ -546,17 +546,17 @@ function DashboardContent() {
                   <label htmlFor="is_default" className="text-muted-foreground font-semibold">Set as default address</label>
                 </div>
 
-                <div className="flex gap-2 sm:col-span-3 mt-2">
+                <div className="flex gap-2 sm:col-span-3 mt-2 w-full">
                   <button
                     type="button"
                     onClick={() => setShowAddressForm(false)}
-                    className="px-4 py-2 border border-border rounded-lg text-xs font-semibold hover:bg-muted text-foreground"
+                    className="px-5 py-3 md:py-2 border border-border rounded-lg text-sm md:text-xs font-semibold hover:bg-muted text-foreground flex-grow sm:flex-none text-center"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="px-5 py-2 bg-primary text-primary-foreground font-bold text-xs rounded-lg hover:bg-primary/95"
+                    className="px-5 py-3 md:py-2 bg-primary text-primary-foreground font-bold text-sm md:text-xs rounded-lg hover:bg-primary/95 flex-grow sm:flex-none text-center"
                   >
                     Save Address
                   </button>
@@ -647,7 +647,7 @@ function DashboardContent() {
         <div className="bg-card border border-border/80 rounded-2xl overflow-hidden shadow-sm flex flex-col">
           <button
             onClick={() => setActiveTab("orders")}
-            className="w-full text-left px-4 py-3 text-xs font-bold transition-colors flex items-center gap-2 text-muted-foreground hover:bg-muted data-[active=true]:bg-primary data-[active=true]:text-primary-foreground"
+            className="w-full text-left px-4 py-3.5 md:py-3 text-sm md:text-xs font-bold transition-colors flex items-center gap-2 text-muted-foreground hover:bg-muted data-[active=true]:bg-primary data-[active=true]:text-primary-foreground"
             data-active={activeTab === "orders"}
           >
             <ShoppingBag className="w-4.5 h-4.5" />
@@ -655,7 +655,7 @@ function DashboardContent() {
           </button>
           <button
             onClick={() => setActiveTab("addresses")}
-            className="w-full text-left px-4 py-3 text-xs font-bold transition-colors flex items-center gap-2 border-t border-border/60 text-muted-foreground hover:bg-muted data-[active=true]:bg-primary data-[active=true]:text-primary-foreground"
+            className="w-full text-left px-4 py-3.5 md:py-3 text-sm md:text-xs font-bold transition-colors flex items-center gap-2 border-t border-border/60 text-muted-foreground hover:bg-muted data-[active=true]:bg-primary data-[active=true]:text-primary-foreground"
             data-active={activeTab === "addresses"}
           >
             <MapPin className="w-4.5 h-4.5" />
@@ -663,7 +663,7 @@ function DashboardContent() {
           </button>
           <button
             onClick={() => setActiveTab("profile")}
-            className="w-full text-left px-4 py-3 text-xs font-bold transition-colors flex items-center gap-2 border-t border-border/60 text-muted-foreground hover:bg-muted data-[active=true]:bg-primary data-[active=true]:text-primary-foreground"
+            className="w-full text-left px-4 py-3.5 md:py-3 text-sm md:text-xs font-bold transition-colors flex items-center gap-2 border-t border-border/60 text-muted-foreground hover:bg-muted data-[active=true]:bg-primary data-[active=true]:text-primary-foreground"
             data-active={activeTab === "profile"}
           >
             <UserIcon className="w-4.5 h-4.5" />
@@ -832,7 +832,7 @@ function DashboardContent() {
                         type="text"
                         placeholder="House No, street name"
                         {...addressForm.register("address")}
-                        className="border p-2 rounded-lg text-xs text-foreground bg-background"
+                        className="border p-3 md:p-2 rounded-lg text-base md:text-xs text-foreground bg-background"
                       />
                       {addressForm.formState.errors.address && (
                         <span className="text-[10px] text-red-500">{addressForm.formState.errors.address.message}</span>
@@ -845,7 +845,7 @@ function DashboardContent() {
                         type="text"
                         placeholder="e.g. Dindigul"
                         {...addressForm.register("city")}
-                        className="border p-2 rounded-lg text-xs text-foreground bg-background"
+                        className="border p-3 md:p-2 rounded-lg text-base md:text-xs text-foreground bg-background"
                       />
                       {addressForm.formState.errors.city && (
                         <span className="text-[10px] text-red-500">{addressForm.formState.errors.city.message}</span>
@@ -858,7 +858,7 @@ function DashboardContent() {
                         type="text"
                         placeholder="6-digit PIN"
                         {...addressForm.register("pincode")}
-                        className="border p-2 rounded-lg text-xs text-foreground bg-background"
+                        className="border p-3 md:p-2 rounded-lg text-base md:text-xs text-foreground bg-background"
                       />
                       {addressForm.formState.errors.pincode && (
                         <span className="text-[10px] text-red-500">{addressForm.formState.errors.pincode.message}</span>
@@ -874,17 +874,17 @@ function DashboardContent() {
                       <label htmlFor="is_default" className="text-muted-foreground font-semibold">Set as default</label>
                     </div>
 
-                    <div className="flex gap-2 sm:col-span-3 mt-2">
+                    <div className="flex gap-2 sm:col-span-3 mt-2 w-full">
                       <button
                         type="button"
                         onClick={() => setShowAddressForm(false)}
-                        className="px-4 py-2 border border-border rounded-lg text-xs hover:bg-muted"
+                        className="px-5 py-3 md:py-2 border border-border rounded-lg text-sm md:text-xs hover:bg-muted flex-grow sm:flex-none text-center"
                       >
                         Cancel
                       </button>
                       <button
                         type="submit"
-                        className="px-5 py-2 bg-primary text-primary-foreground font-bold text-xs rounded-lg hover:bg-primary/95"
+                        className="px-5 py-3 md:py-2 bg-primary text-primary-foreground font-bold text-sm md:text-xs rounded-lg hover:bg-primary/95 flex-grow sm:flex-none text-center"
                       >
                         Save
                       </button>
@@ -950,7 +950,7 @@ function DashboardContent() {
                       value={editName}
                       onChange={(e) => setEditName(e.target.value)}
                       required
-                      className="border border-border p-2.5 rounded-lg text-xs text-foreground bg-background"
+                      className="border border-border p-3 md:p-2.5 rounded-lg text-base md:text-xs text-foreground bg-background"
                     />
                   </div>
 
@@ -961,14 +961,14 @@ function DashboardContent() {
                       value={editPhone}
                       onChange={(e) => setEditPhone(e.target.value)}
                       required
-                      className="border border-border p-2.5 rounded-lg text-xs text-foreground bg-background"
+                      className="border border-border p-3 md:p-2.5 rounded-lg text-base md:text-xs text-foreground bg-background"
                     />
                   </div>
 
                   <button
                     type="submit"
                     disabled={profileSaving}
-                    className="py-2.5 bg-primary text-primary-foreground font-bold text-xs rounded-lg hover:bg-primary/95 transition-colors shadow-sm self-start px-6"
+                    className="w-full sm:w-auto py-3.5 md:py-2.5 bg-primary text-primary-foreground font-bold text-sm md:text-xs rounded-lg hover:bg-primary/95 transition-colors shadow-sm self-start px-6 text-center"
                   >
                     {profileSaving ? "Saving..." : "Save Details"}
                   </button>

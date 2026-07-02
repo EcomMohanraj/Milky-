@@ -57,7 +57,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           {/* Wishlist Trigger */}
           <button
             onClick={() => toggleWishlist(product)}
-            className={`absolute top-3 right-3 p-2 rounded-full shadow-md z-10 hover:scale-110 active:scale-95 transition-all ${
+            className={`absolute top-3 right-3 p-3 md:p-2 rounded-full shadow-md z-10 hover:scale-110 active:scale-95 transition-all ${
               isFavorite
                 ? "bg-red-500 text-white"
                 : "bg-white/95 dark:bg-black/80 text-muted-foreground hover:text-foreground"
@@ -112,7 +112,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             {!isOutOfStock ? (
               <button
                 onClick={() => addToCart(product, 1)}
-                className="px-3.5 py-1.5 bg-primary text-primary-foreground text-xs font-bold rounded-lg hover:bg-primary/95 transition-colors flex items-center gap-1.5 shadow-sm"
+                className="px-4 py-3 md:px-3.5 md:py-1.5 bg-primary text-primary-foreground text-sm md:text-xs font-bold rounded-lg hover:bg-primary/95 transition-colors flex items-center gap-1.5 shadow-sm"
               >
                 <ShoppingCart className="w-3.5 h-3.5" />
                 Add
@@ -120,7 +120,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             ) : (
               <button
                 disabled
-                className="px-3 py-1.5 bg-muted text-muted-foreground text-xs font-semibold rounded-lg cursor-not-allowed"
+                className="px-4 py-3 md:px-3 md:py-1.5 bg-muted text-muted-foreground text-sm md:text-xs font-semibold rounded-lg cursor-not-allowed"
               >
                 Out of Stock
               </button>

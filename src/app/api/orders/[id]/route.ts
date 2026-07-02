@@ -61,6 +61,45 @@ async function sendSMS(toNumber: string, message: string): Promise<{ success: bo
     return { success: false, error: err instanceof Error ? err.message : "Network error" };
   }
 }
+async function sendFast2SMS(toNumber: string, message: string): Promise<{ success: boolean; error?: string }> {
+  const apiKey = process.env.FAST2SMS_API_KEY;
+  if (!apiKey) {
+    console.log(`[Fast2SMS MOCK LOG] To: ${toNumber}\nMessage:\n${message}\n(Set FAST2SMS_API_KEY environment variable for real dispatch)`);
+    return { success: true };
+  }
+
+  try {
+    const digits = toNumber.replace(/\D/g, "");
+    const targetNumber = digits.length > 10 ? digits.slice(-10) : digits;
+
+    if (targetNumber.length !== 10) {
+      return { success: false, error: "Invalid Indian phone number." };
+    }
+
+    const response = await fetch("https://www.fast2sms.com/dev/bulkV2", {
+      method: "POST",
+      headers: {
+        "authorization": apiKey,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        route: "q",
+        message: message,
+        language: "english",
+        numbers: targetNumber
+      })
+    });
+
+    const data = await response.json();
+    if (!response.ok || !data.return) {
+      return { success: false, error: data.message || "Fast2SMS API returned failure response." };
+    }
+
+    return { success: true };
+  } catch (err) {
+    return { success: false, error: err instanceof Error ? err.message : "Network error" };
+  }
+}
 
 export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -207,7 +246,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
       // 3.2 Send SMS
       if (isValidPhone(customerPhone)) {
         const smsMessage = `Dear ${customerName},\n\nGreat news! Your order #${orderIdShort} has been shipped via ${courierNameDisplay}.\n\nTracking ID:\n${tracking_id}\n\nTrack your shipment:\n${trackingUrl}\n\nThank you for shopping with us.`;
-        const smsResult = await sendSMS(customerPhone, smsMessage);
+        const smsResult = await sendFast2SMS(customerPhone, smsMessage);
         smsSent = smsResult.success;
         if (!smsResult.success) {
           smsError = smsResult.error || "SMS API failure.";
@@ -219,13 +258,93 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
       }
     }
 
+    const isDeliveredTransition = finalStatus === "delivered" && existingOrder.status !== "delivered";
+
+    if (isDeliveredTransition) {
+      const customerEmail = existingOrder.email;
+      const customerName = existingOrder.name || "Customer";
+      const customerPhone = existingOrder.phone || "";
+
+      const itemsResult = await query(
+        `SELECT p.name, p.slug 
+         FROM public.order_items oi 
+         JOIN public.products p ON oi.product_id = p.id 
+         WHERE oi.order_id = $1`,
+        [id]
+      );
+      const orderItems = itemsResult.rows;
+
+      if (isValidEmail(customerEmail)) {
+        try {
+          const apiKey = process.env.RESEND_API_KEY;
+          if (apiKey) {
+            const emailHtml = `
+              <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden; background-color: #fcfdfa; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);">
+                <div style="background-color: #15803d; padding: 32px 24px; text-align: center; border-bottom: 4px solid #166534;">
+                  <div style="font-size: 26px; font-weight: 800; color: #ffffff; letter-spacing: 0.5px;">🍄 Milky Mushrooms</div>
+                  <p style="color: #d1fae5; margin: 8px 0 0; font-size: 13px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;">Order Delivered</p>
+                </div>
+                <div style="padding: 32px 24px; color: #1f2937; line-height: 1.6;">
+                  <h2 style="color: #15803d; font-size: 20px; margin-top: 0; font-weight: 800;">Hi ${customerName},</h2>
+                  <p style="font-size: 14px; color: #4b5563;">Your Milky Mushrooms order has been successfully delivered! We hope you enjoy your fresh farm harvest.</p>
+                  <p style="font-size: 14px; color: #4b5563; margin-bottom: 24px;">Could you take a moment to share your feedback with us? Your reviews help our farm grow and serve you better.</p>
+                  <div style="background-color: #fdfdf9; border: 1px solid #f0ece0; border-radius: 12px; padding: 20px; margin: 24px 0;">
+                    <h3 style="color: #15803d; margin-top: 0; margin-bottom: 16px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid #f0ece0; padding-bottom: 8px;">Items in Your Order</h3>
+                    ${orderItems.map(item => `
+                      <div style="padding: 12px 0; border-bottom: 1px solid #f5f2e9; margin-bottom: 12px;">
+                        <div style="font-size: 14px; font-weight: bold; color: #1f2937; margin-bottom: 8px;">${item.name}</div>
+                        <div>
+                          <a href="https://www.milkymushroom.in/shop/${item.slug}#reviews" target="_blank" style="background-color: #15803d; color: #ffffff; padding: 8px 16px; border-radius: 8px; font-size: 12px; font-weight: bold; text-decoration: none; display: inline-block;">Leave a Review</a>
+                        </div>
+                      </div>
+                    `).join('')}
+                  </div>
+                  <p style="font-size: 14px; margin-top: 32px; border-top: 1px solid #e2e8f0; padding-top: 20px; font-weight: bold; color: #4b5563;">Warm regards,<br/><span style="color: #15803d;">The Milky Mushrooms Team</span></p>
+                </div>
+                <div style="background-color: #f1f5f9; padding: 24px; text-align: center; font-size: 11px; color: #64748b; border-top: 1px solid #e2e8f0;">
+                  <p style="margin: 0 0 8px;">Questions or need help? Contact support at <a href="mailto:support@milkymushroom.in" style="color: #15803d; text-decoration: none;">support@milkymushroom.in</a> or call <a href="tel:+919988776655" style="color: #15803d; text-decoration: none;">+91 99887 76655</a></p>
+                  <p style="margin: 0;">This email was sent to ${customerEmail}. Thank you for shopping organic!</p>
+                </div>
+              </div>
+            `;
+
+            const resend = new Resend(apiKey);
+            await resend.emails.send({
+              from: "Milky Mushrooms <orders@milkymushroom.in>",
+              to: customerEmail,
+              subject: "🍄 Leave a Review for Your Milky Mushrooms Order",
+              html: emailHtml
+            });
+            emailSent = true;
+          } else {
+            emailError = "RESEND_API_KEY is not defined in environment variables.";
+            console.warn("RESEND_API_KEY is not defined. Email skipped.");
+          }
+        } catch (err) {
+          emailError = err instanceof Error ? err.message : "Error sending email notification.";
+          console.error("Resend API failed:", err);
+        }
+      }
+
+      if (isValidPhone(customerPhone)) {
+        const firstSlug = orderItems[0]?.slug || "";
+        const smsMessage = `Hi ${customerName}! Your Milky Mushrooms order is delivered 🍄 Please share your experience: milkymushroom.in/shop/${firstSlug} — Team Milky Mushrooms, Dindigul`;
+        const smsResult = await sendFast2SMS(customerPhone, smsMessage);
+        smsSent = smsResult.success;
+        if (!smsResult.success) {
+          smsError = smsResult.error || "Fast2SMS API failure.";
+          console.error("Fast2SMS Dispatch failed:", smsError);
+        }
+      }
+    }
+
     return NextResponse.json({
       success: true,
       emailSent,
       smsSent,
       emailError,
       smsError,
-      notified: shouldNotify
+      notified: shouldNotify || isDeliveredTransition
     });
   } catch (error) {
     console.error("PUT Order API error:", error);
