@@ -16,7 +16,33 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
       [id]
     );
 
-    return NextResponse.json({ reviews: res.rows });
+    // Check if the current logged-in user can leave a review (verified purchase)
+    let canReview = false;
+    try {
+      const cookieStore = await cookies();
+      const token = cookieStore.get("token")?.value;
+      if (token) {
+        const secret = process.env.SESSION_SECRET || "milky-mushrooms-super-secret-key-15803d-green";
+        const decoded = await verifyJwt(token, secret);
+        if (decoded && decoded.id) {
+          const checkRes = await query(
+            `SELECT 1 
+             FROM public.orders o
+             JOIN public.order_items oi ON o.id = oi.order_id
+             WHERE o.user_id = $1 
+               AND oi.product_id = $2 
+               AND o.status IN ('paid', 'shipped', 'delivered')
+             LIMIT 1`,
+            [decoded.id as string, id]
+          );
+          canReview = checkRes.rows.length > 0;
+        }
+      }
+    } catch (e) {
+      // Ignore auth/verification errors when checking eligibility for GET
+    }
+
+    return NextResponse.json({ reviews: res.rows, canReview });
   } catch (error) {
     console.error("GET product reviews error:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
@@ -40,6 +66,25 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 
     if (!rating || rating < 1 || rating > 5) {
       return NextResponse.json({ error: "Rating must be between 1 and 5." }, { status: 400 });
+    }
+
+    // Verify purchase status
+    const checkRes = await query(
+      `SELECT 1 
+       FROM public.orders o
+       JOIN public.order_items oi ON o.id = oi.order_id
+       WHERE o.user_id = $1 
+         AND oi.product_id = $2 
+         AND o.status IN ('paid', 'shipped', 'delivered')
+       LIMIT 1`,
+      [decoded.id as string, id]
+    );
+
+    if (checkRes.rows.length === 0) {
+      return NextResponse.json(
+        { error: "Only customers who have purchased this product can leave a review." }, 
+        { status: 403 }
+      );
     }
 
     const res = await query(

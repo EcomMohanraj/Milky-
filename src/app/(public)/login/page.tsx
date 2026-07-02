@@ -70,7 +70,7 @@ function LoginContent() {
       const res = await login(values.email, values.password);
       if (res.success) {
         toast({ title: "Welcome back!", description: "Successfully logged in." });
-        router.push("/dashboard");
+        router.push("/shop");
       } else {
         setErrorMessage(res.error || "Wrong email/password.");
         toast({ title: "Authentication Failed", description: res.error || "Wrong email/password", variant: "destructive" });

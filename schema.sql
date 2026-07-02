@@ -81,6 +81,8 @@ CREATE TABLE IF NOT EXISTS public.orders (
   status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'paid', 'failed', 'shipped', 'delivered')),
   payment_id TEXT, -- Razorpay Payment/Order ID
   address TEXT, -- Flattened address snapshot at time of purchase
+  tracking_id TEXT, -- Manual shipment tracking ID
+  courier_name TEXT, -- Manual shipment courier name
   created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
 );
 
@@ -157,7 +159,16 @@ CREATE POLICY "Allow public read-only of reviews" ON public.reviews
   FOR SELECT USING (true);
 
 CREATE POLICY "Allow users to manage their own reviews" ON public.reviews 
-  FOR ALL USING (auth.uid() = user_id);
+  FOR ALL USING (
+    auth.uid() = user_id
+    AND EXISTS (
+      SELECT 1 FROM public.orders o
+      JOIN public.order_items oi ON o.id = oi.order_id
+      WHERE o.user_id = auth.uid()
+        AND oi.product_id = reviews.product_id
+        AND o.status IN ('paid', 'shipped', 'delivered')
+    )
+  );
 
 
 -- 7. Blog Posts Table
@@ -213,7 +224,7 @@ VALUES
   'Premium Fresh Milky Mushrooms',
   'premium-fresh-milky-mushrooms',
   'Freshly harvested organic Milky Mushrooms (Calocybe indica) directly from our farm beds. These mushrooms are known for their firm, meaty texture, milky white appearance, and long shelf life. Perfect for stir-fries, soups, and curries.',
-  '/images/fresh_milky_mushrooms.png',
+  '/images/fresh_milky_mushrooms.webp',
   240.00,
   100,
   'Fresh',
@@ -223,7 +234,7 @@ VALUES
   'Dehydrated Milky Mushroom Slices',
   'dehydrated-milky-mushroom-slices',
   'Premium sundried Milky Mushroom slices with intense earthy aroma. Dehydrated at optimal temperatures to preserve nutrients and prolong shelf-life up to 6 months. Rehydrate in warm water for 15 minutes before cooking.',
-  '/images/dried_milky_mushrooms.png',
+  '/images/dried_milky_mushrooms.webp',
   350.00,
   50,
   'Dried',
@@ -233,7 +244,7 @@ VALUES
   'Milky Mushroom Cultivation Spawn',
   'milky-mushroom-spawn',
   'High-quality, laboratory-grown, fully colonized grain spawn of Calocybe indica. Cultivated on sorghum grains under strict sterile conditions. Ideal for mushroom growers looking to inoculate straw beds.',
-  '/images/milky_mushroom_spawn.png',
+  '/images/milky_mushroom_spawn.webp',
   120.00,
   200,
   'Spawn',
@@ -243,7 +254,7 @@ VALUES
   'Organic Milky Mushroom Powder',
   'organic-milky-mushroom-powder',
   '100% pure organic Milky Mushroom powder. Ground from dried, selected mushrooms, rich in vitamins and immune-supporting beta-glucans. Add to soups, smoothies, or baking flour for a nutritious boost.',
-  '/images/milky_mushroom_powder.png',
+  '/images/milky_mushroom_powder.webp',
   450.00,
   30,
   'Powder',
@@ -266,25 +277,25 @@ VALUES
   'Spicy Milky Mushroom Fry',
   'spicy-milky-mushroom-fry',
   'A quick and delicious South Indian style mushroom stir-fry. Ingredients:\n- 250g Fresh Milky Mushrooms\n- 1 Large Onion (sliced)\n- 1 Tomato (chopped)\n- 1 tsp Ginger-garlic paste\n- 1/2 tsp Turmeric powder\n- 1 tsp Chilli powder\n- 1/2 tsp Black Pepper powder\n- Curry leaves & oil\n\nMethod:\n1. Wash and chop mushrooms into bite-sized cubes.\n2. Heat oil in a pan, add curry leaves and onions, fry until translucent.\n3. Add ginger-garlic paste, fry for 1 min, then add tomato.\n4. Stir in spices and cook till oil separates.\n5. Add mushrooms, do not add water (mushrooms release their own water).\n6. Sauté on medium-high heat for 8-10 minutes until mushrooms are cooked and dry. Sprinkle black pepper and serve hot!',
-  '/images/spicy_mushroom_fry.png'
+  '/images/spicy_mushroom_fry.webp'
 ),
 (
   'Creamy Milky Mushroom Soup',
   'creamy-milky-mushroom-soup',
   'A comforting, velvet-smooth soup highlighting the meaty Milky Mushrooms. Ingredients:\n- 200g Fresh Milky Mushrooms\n- 2 tbsp Butter\n- 1 small Onion (finely chopped)\n- 2 cloves Garlic (minced)\n- 2 tbsp All-purpose flour\n- 2 cups Vegetable/Chicken broth\n- 1/2 cup Fresh Cream\n- Salt and Pepper to taste\n\nMethod:\n1. Chop mushrooms finely.\n2. Melt butter in a pot over medium heat, add garlic and onion, sauté for 2 minutes.\n3. Add chopped mushrooms and cook for 6 minutes until tender.\n4. Sprinkle flour over mushrooms, stir well for 1 minute.\n5. Slowly pour in broth while whisking to avoid lumps.\n6. Bring to a boil, reduce heat, simmer for 10 minutes.\n7. Stir in fresh cream, salt, and pepper. Simmer for 1 minute and serve warm garnished with chives.',
-  '/images/creamy_mushroom_soup.png'
+  '/images/creamy_mushroom_soup.webp'
 ),
 (
   'Chettinad Milky Mushroom Gravy',
   'chettinad-milky-mushroom-gravy',
   'A rich, aromatic Chettinad-style curry made with fresh ground spices. Ingredients:\n- 250g Milky Mushrooms\n- 10 Shallots (chopped)\n- 2 Tomatoes (pureed)\n- 1 tbsp Chettinad masala powder\n- 1/2 cup Coconut milk\n- Mustard seeds, fennel seeds, oil\n\nMethod:\n1. Clean and slice mushrooms.\n2. Heat oil in a pan, temper with mustard and fennel seeds.\n3. Add shallots and sauté until golden brown.\n4. Add tomatoes and cook until soft.\n5. Add Chettinad masala, salt, and mushrooms. Cover and cook on medium for 6 minutes.\n6. Pour in coconut milk and simmer on low for 3 minutes. Garnish with fresh coriander leaves.',
-  'https://images.unsplash.com/photo-1626132647523-66f5bf380027?auto=format&fit=crop&q=80&w=600'
+  '/images/chettinad_mushroom_gravy.webp'
 ),
 (
   'Organic Milky Mushroom Biryani',
   'organic-milky-mushroom-biryani',
   'A classic, fragrant biryani loaded with meaty Milky Mushrooms. Ingredients:\n- 300g Milky Mushrooms (cubed)\n- 2 cups Basmati Rice (soaked)\n- 1/4 cup Mint & Coriander leaves\n- 1/2 cup Curd\n- 2 tsp Biryani Masala\n- Saffron milk, Ghee, Spices\n\nMethod:\n1. Clean and chop mushrooms.\n2. Heat ghee, fry whole spices (bay leaf, cardamom, cloves).\n3. Sauté onions till brown, add ginger-garlic paste and mint-coriander leaves.\n4. Mix in tomatoes, biryani masala, curd, and mushrooms. Cook for 5 minutes.\n5. In a separate pot, cook Basmati rice till 70% done.\n6. Layer rice over the mushroom masala, drizzle saffron milk and ghee.\n7. Close lid, seal edges, and cook on low heat (dum) for 15 minutes. Serve with raita!',
-  'https://images.unsplash.com/photo-1633945274405-b6c8069047b0?auto=format&fit=crop&q=80&w=600'
+  '/images/organic_mushroom_biryani.webp'
 )
 ON CONFLICT (slug) DO UPDATE SET
   title = EXCLUDED.title,

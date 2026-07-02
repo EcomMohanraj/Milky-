@@ -51,7 +51,7 @@ Follow this step-by-step guide to launch your Milky Mushrooms e-commerce site to
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase -> Project Settings -> API -> anon public key |
 | `NEXT_PUBLIC_RAZORPAY_KEY_ID` | Razorpay Dashboard -> API Keys -> Key ID |
 | `RAZORPAY_KEY_SECRET` | Razorpay Dashboard -> API Keys -> Key Secret |
-| `NEXT_PUBLIC_APP_URL` | Your live deployment URL (e.g. `https://milkymushrooms.com`) |
+| `NEXT_PUBLIC_APP_URL` | Your live deployment URL (e.g. `https://milkymushroom.in`) |
 | `MOCK_PAYMENT` | Set to `false` in production (enables real Razorpay transactions) |
 
 6. Click **Deploy**. Vercel will compile the Next.js App Router, optimize Tailwind CSS v4, bundle components, and publish your site.

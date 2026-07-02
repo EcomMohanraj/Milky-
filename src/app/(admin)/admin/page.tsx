@@ -15,14 +15,14 @@ import {
   Lock,
   Tag,
 } from "lucide-react";
-import { useAuth } from "@/contexts/AuthContext";
 import { productService } from "@/services/product.service";
 import { orderService } from "@/services/order.service";
 import { Order, Product, Review, BlogPost } from "@/types";
 import { useToast } from "@/components/ui/toast-simple";
+import { useRequireAuth } from "@/hooks/useRequireAuth";
 
 export default function AdminDashboardPage() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading } = useRequireAuth();
   const { toast } = useToast();
 
   const [activeTab, setActiveTab] = useState<"orders" | "products" | "reviews" | "coupons" | "blogs">("orders");
@@ -36,6 +36,11 @@ export default function AdminDashboardPage() {
   const [orderStatusFilter, setOrderStatusFilter] = useState<string>("all");
   const [orderSearchVal, setOrderSearchVal] = useState<string>("");
   const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
+
+  // Shipment tracking states
+  const [trackingInputs, setTrackingInputs] = useState<Record<string, string>>({});
+  const [courierInputs, setCourierInputs] = useState<Record<string, string>>({});
+  const [savingTrackingId, setSavingTrackingId] = useState<Record<string, boolean>>({});
 
   // Form states for creating products
   const [showProductForm, setShowProductForm] = useState(false);
@@ -88,7 +93,7 @@ export default function AdminDashboardPage() {
       // Load all product reviews
       const allReviews: Review[] = [];
       for (const p of pData) {
-        const revs = await productService.getReviews(p.id);
+        const { reviews: revs } = await productService.getReviews(p.id);
         allReviews.push(...revs);
       }
       setReviews(allReviews);
@@ -112,6 +117,66 @@ export default function AdminDashboardPage() {
       });
     } catch (err) {
       console.error(err);
+    }
+  };
+
+  const handleSaveTrackingId = async (orderId: string) => {
+    const trackingId = trackingInputs[orderId] !== undefined ? trackingInputs[orderId] : (orders.find(o => o.id === orderId)?.tracking_id || "");
+    const courierName = courierInputs[orderId] !== undefined ? courierInputs[orderId] : (orders.find(o => o.id === orderId)?.courier_name || "");
+
+    if (!trackingId) {
+      toast({
+        title: "Tracking ID Required",
+        description: "Please enter a tracking ID before saving.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setSavingTrackingId(prev => ({ ...prev, [orderId]: true }));
+    try {
+      const order = orders.find(o => o.id === orderId);
+      let newStatus = order?.status;
+      if (order && order.status !== "shipped" && order.status !== "delivered") {
+        newStatus = "shipped";
+      }
+
+      const res = await orderService.updateOrderTracking(orderId, trackingId, courierName, newStatus);
+
+      setOrders(prev =>
+        prev.map(o => o.id === orderId ? { ...o, tracking_id: trackingId, courier_name: courierName, status: newStatus || o.status } : o)
+      );
+
+      // Analyze dispatch outcome to construct success text
+      let desc = "Tracking ID has been saved successfully.";
+      if (res.notified) {
+        if (res.emailSent && res.smsSent) {
+          desc = "Tracking ID saved successfully. Email and SMS notifications have been sent.";
+        } else if (res.emailSent && !res.smsSent) {
+          desc = `Tracking ID saved successfully. Email sent, but SMS failed: ${res.smsError || "Unknown error"}`;
+        } else if (!res.emailSent && res.smsSent) {
+          desc = `Tracking ID saved successfully. SMS sent, but Email failed: ${res.emailError || "Unknown error"}`;
+        } else {
+          desc = `Tracking ID saved. However, Email and SMS notifications failed: Email (${res.emailError || "failed"}), SMS (${res.smsError || "failed"})`;
+        }
+      } else {
+        desc = "Tracking ID saved successfully. (Duplicate ID; notifications skipped to prevent spam.)";
+      }
+
+      toast({
+        title: "Shipment Saved",
+        description: desc,
+        variant: (res.notified && (!res.emailSent || !res.smsSent)) ? "info" : "success",
+      });
+    } catch (err) {
+      console.error(err);
+      toast({
+        title: "Update Failed",
+        description: err instanceof Error ? err.message : "Failed to update tracking ID.",
+        variant: "destructive"
+      });
+    } finally {
+      setSavingTrackingId(prev => ({ ...prev, [orderId]: false }));
     }
   };
 
@@ -147,7 +212,7 @@ export default function AdminDashboardPage() {
         name: prodName,
         slug: prodSlug,
         description: prodDesc,
-        image: prodImg || "/images/fresh_milky_mushrooms.png",
+        image: prodImg || "/images/fresh_milky_mushrooms.webp",
         price: Number(prodPrice),
         stock: Number(prodStock),
         category: prodCategory,
@@ -257,8 +322,12 @@ export default function AdminDashboardPage() {
     );
   }
 
+  if (!user) {
+    return null;
+  }
+
   // AUTHORIZATION GUARD
-  if (!user || user.role !== "admin") {
+  if (user.role !== "admin") {
     return (
       <div className="container mx-auto px-4 py-20 flex-grow flex items-center justify-center">
         <div className="bg-card border border-border/80 w-full max-w-md p-8 rounded-3xl shadow-xl text-center flex flex-col items-center gap-5">
@@ -679,6 +748,61 @@ export default function AdminDashboardPage() {
                                                     <div className="text-[10px] text-muted-foreground leading-normal mt-1 bg-muted/40 p-2 rounded-lg border border-border/30">
                                                       <strong>Status:</strong> {ord.status.toUpperCase()}
                                                       <p className="mt-0.5">Modify action status using the dropdown list selector.</p>
+                                                    </div>
+
+                                                    {/* Shipment Tracking Section */}
+                                                    <div className="border-t border-border/40 pt-3 mt-1 flex flex-col gap-2.5">
+                                                      <label className="font-extrabold text-[10px] text-foreground uppercase tracking-wide">
+                                                        Shipment Tracking
+                                                      </label>
+                                                      
+                                                      <div className="flex flex-col gap-2">
+                                                        <div className="flex flex-col gap-1">
+                                                          <span className="text-[9px] uppercase font-bold text-muted-foreground">Courier Name</span>
+                                                          <input
+                                                            type="text"
+                                                            placeholder="e.g. India Post, Blue Dart"
+                                                            value={courierInputs[ord.id] !== undefined ? courierInputs[ord.id] : (ord.courier_name || "")}
+                                                            onChange={(e) => setCourierInputs(prev => ({ ...prev, [ord.id]: e.target.value }))}
+                                                            disabled={savingTrackingId[ord.id]}
+                                                            className="w-full px-2.5 py-1.5 border border-border rounded-lg bg-background text-xs text-foreground focus:outline-none focus:border-primary disabled:bg-muted/40 disabled:cursor-not-allowed"
+                                                          />
+                                                        </div>
+
+                                                        <div className="flex flex-col gap-1">
+                                                          <span className="text-[9px] uppercase font-bold text-muted-foreground">Tracking ID / Number</span>
+                                                          <input
+                                                            type="text"
+                                                            placeholder="e.g. CT3178988551IN"
+                                                            value={trackingInputs[ord.id] !== undefined ? trackingInputs[ord.id] : (ord.tracking_id || "")}
+                                                            onChange={(e) => setTrackingInputs(prev => ({ ...prev, [ord.id]: e.target.value }))}
+                                                            disabled={savingTrackingId[ord.id]}
+                                                            className="w-full px-2.5 py-1.5 border border-border rounded-lg bg-background text-xs text-foreground focus:outline-none focus:border-primary font-mono disabled:bg-muted/40 disabled:cursor-not-allowed"
+                                                          />
+                                                        </div>
+
+                                                        <button
+                                                          onClick={() => handleSaveTrackingId(ord.id)}
+                                                          disabled={savingTrackingId[ord.id]}
+                                                          className="w-full py-2 bg-primary hover:bg-primary/95 disabled:bg-muted text-primary-foreground text-xs font-bold rounded-lg shadow-sm transition-all flex items-center justify-center gap-1.5 mt-1"
+                                                        >
+                                                          {savingTrackingId[ord.id] ? (
+                                                            <>
+                                                              <span className="animate-spin rounded-full h-3.5 w-3.5 border-2 border-primary-foreground border-t-transparent" />
+                                                              Sending Notifications...
+                                                            </>
+                                                          ) : (
+                                                            "Save Tracking & Notify"
+                                                          )}
+                                                        </button>
+                                                      </div>
+                                                      
+                                                      {ord.tracking_id && (
+                                                        <div className="text-[10px] text-muted-foreground bg-muted/40 p-2 rounded-lg border border-border/30 flex flex-col gap-0.5">
+                                                          <div><strong>Courier:</strong> {ord.courier_name || "India Post"}</div>
+                                                          <div><strong>Tracking Number:</strong> <span className="font-mono">{ord.tracking_id}</span></div>
+                                                        </div>
+                                                      )}
                                                     </div>
 
                                                     {ord.status === "pending" && (

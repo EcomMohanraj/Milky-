@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState, Suspense, useCallback } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -21,6 +21,7 @@ import { useCart } from "@/contexts/CartContext";
 import { orderService } from "@/services/order.service";
 import { Address, Order } from "@/types";
 import { useToast } from "@/components/ui/toast-simple";
+import { useRequireAuth } from "@/hooks/useRequireAuth";
 
 const addressSchema = z.object({
   address: z.string().min(5, { message: "Address must be at least 5 characters." }),
@@ -33,8 +34,8 @@ type AddressFormValues = z.infer<typeof addressSchema>;
 
 function DashboardContent() {
   const searchParams = useSearchParams();
-  const router = useRouter();
-  const { user, loading: authLoading, updateProfile } = useAuth();
+  const { updateProfile } = useAuth();
+  const { user, loading: authLoading } = useRequireAuth();
   const { cart, cartTotal, clearCart } = useCart();
   const { toast } = useToast();
 
@@ -66,12 +67,7 @@ function DashboardContent() {
     },
   });
 
-  // Redirect unauthorized users to login
-  useEffect(() => {
-    if (!authLoading && !user) {
-      router.push("/login");
-    }
-  }, [user, authLoading, router]);
+
 
   const loadUserData = useCallback(async () => {
     if (!user) return;
@@ -114,7 +110,18 @@ function DashboardContent() {
     }
   }, [searchParams, cart]);
 
+  if (authLoading) {
+    return (
+      <div className="container mx-auto px-4 py-20 flex flex-col items-center justify-center gap-3 flex-grow">
+        <span className="animate-spin rounded-full h-8 w-8 border-2 border-primary border-t-transparent" />
+        <span className="font-bold text-xs text-muted-foreground uppercase tracking-wide">Loading Account Hub...</span>
+      </div>
+    );
+  }
 
+  if (!user) {
+    return null;
+  }
 
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -268,7 +275,7 @@ function DashboardContent() {
           currency: "INR",
           name: "Milky Mushrooms",
           description: "Fresh Farm Mushrooms Purchase",
-          image: "/images/fresh_milky_mushrooms.png",
+          image: "/images/fresh_milky_mushrooms.webp",
           order_id: newOrder.razorpay_order_id,
           handler: async function (response: {
             razorpay_payment_id: string;
@@ -724,10 +731,20 @@ function DashboardContent() {
                         <div className="flex flex-col gap-2.5">
                           {ord.items?.map((item) => (
                             <div key={item.id} className="flex justify-between items-center text-[11px]">
-                              <span className="font-bold text-foreground">
-                                {item.product?.name || "Premium Milky Mushrooms"}{" "}
-                                <span className="text-muted-foreground font-semibold">x{item.quantity}</span>
-                              </span>
+                              <div className="flex flex-col gap-0.5">
+                                <span className="font-bold text-foreground">
+                                  {item.product?.name || "Premium Milky Mushrooms"}{" "}
+                                  <span className="text-muted-foreground font-semibold">x{item.quantity}</span>
+                                </span>
+                                {item.product?.slug && (
+                                  <Link
+                                    href={`/shop/${item.product.slug}#reviews`}
+                                    className="text-[9px] font-extrabold text-primary hover:underline self-start mt-0.5"
+                                  >
+                                    Write a Review
+                                  </Link>
+                                )}
+                              </div>
                               <span className="font-extrabold text-foreground">₹{(item.price * item.quantity).toFixed(2)}</span>
                             </div>
                           ))}
@@ -755,6 +772,34 @@ function DashboardContent() {
                             />
                           </div>
                         </div>
+
+                        {/* Shipment Tracking details */}
+                        {ord.tracking_id && (
+                          <div className="mt-3.5 bg-primary/5 border border-primary/20 p-3 rounded-xl flex flex-col gap-1.5">
+                            <span className="text-[10px] font-bold uppercase text-primary tracking-wider">Shipment Tracking</span>
+                            <div className="text-xs text-muted-foreground flex flex-col gap-0.5">
+                              <div><strong>Courier:</strong> {ord.courier_name || "India Post"}</div>
+                              <div>
+                                <strong>Tracking ID:</strong> <span className="font-mono font-bold text-foreground">{ord.tracking_id}</span>
+                              </div>
+                            </div>
+                            <div className="flex justify-between items-center gap-2 mt-1 pt-1.5 border-t border-primary/10">
+                              <span className="text-[10px] text-muted-foreground">Status: {ord.status.toUpperCase()}</span>
+                              <a
+                                href={
+                                  (ord.courier_name || "India Post").toLowerCase().includes("india post")
+                                    ? "https://www.indiapost.gov.in/_layouts/15/dop.portal.tracking/trackconsignment.aspx"
+                                    : "https://www.indiapost.gov.in/_layouts/15/dop.portal.tracking/trackconsignment.aspx"
+                                }
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-[10px] font-bold text-primary hover:underline flex items-center gap-1"
+                              >
+                                Track Package →
+                              </a>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>

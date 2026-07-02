@@ -23,6 +23,8 @@ export default function ProductDetailsPage({ params }: PageProps) {
 
   const [product, setProduct] = useState<Product | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
+  const [canReview, setCanReview] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
 
@@ -37,8 +39,9 @@ export default function ProductDetailsPage({ params }: PageProps) {
         const prodData = await productService.getProductBySlug(slug);
         if (prodData) {
           setProduct(prodData);
-          const revs = await productService.getReviews(prodData.id);
+          const { reviews: revs, canReview: eligible } = await productService.getReviews(prodData.id);
           setReviews(revs);
+          setCanReview(eligible);
         }
       } catch (err) {
         console.error("Error loading product: ", err);
@@ -102,9 +105,20 @@ export default function ProductDetailsPage({ params }: PageProps) {
         },
         user.name
       );
-      setReviews((prev) => [newReview, ...prev]);
+
+      setReviews((prev) => {
+        const index = prev.findIndex((r) => r.user_id === user.id);
+        if (index > -1) {
+          const updated = [...prev];
+          updated[index] = newReview;
+          return updated;
+        }
+        return [newReview, ...prev];
+      });
+
       setComment("");
       setRating(5);
+      setIsEditing(false);
       toast({
         title: "Review Submitted",
         description: "Thank you for your feedback!",
@@ -114,7 +128,7 @@ export default function ProductDetailsPage({ params }: PageProps) {
       console.error(err);
       toast({
         title: "Submission Failed",
-        description: "Could not post review. Have you already reviewed this product?",
+        description: err instanceof Error ? err.message : "Could not post review.",
         variant: "destructive",
       });
     } finally {
@@ -284,7 +298,7 @@ export default function ProductDetailsPage({ params }: PageProps) {
       </div>
 
       {/* REVIEWS & FEEDBACK */}
-      <section className="mt-12 md:mt-20 border-t border-border pt-10 md:pt-16 max-w-4xl">
+      <section id="reviews" className="mt-12 md:mt-20 border-t border-border pt-10 md:pt-16 max-w-4xl">
         <h2 className="text-2xl font-extrabold text-foreground mb-8 flex items-center gap-2 font-outfit">
           <MessageSquare className="w-6 h-6 text-primary" />
           Customer Feedback ({reviews.length})
@@ -296,42 +310,110 @@ export default function ProductDetailsPage({ params }: PageProps) {
           <div className="md:col-span-1 bg-card border border-border/80 p-5 rounded-2xl shadow-sm flex flex-col gap-4">
             <h3 className="font-extrabold text-sm text-foreground">Write a Review</h3>
             {user ? (
-              <form onSubmit={handleReviewSubmit} className="flex flex-col gap-3">
-                <div>
-                  <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Rating</label>
-                  <select
-                    value={rating}
-                    onChange={(e) => setRating(Number(e.target.value))}
-                    className="w-full mt-1 border border-border rounded-lg p-3 md:p-2 text-base md:text-xs text-foreground bg-background focus:outline-none"
-                  >
-                    <option value={5}>5 Stars (Excellent)</option>
-                    <option value={4}>4 Stars (Good)</option>
-                    <option value={3}>3 Stars (Average)</option>
-                    <option value={2}>2 Stars (Poor)</option>
-                    <option value={1}>1 Star (Very Bad)</option>
-                  </select>
-                </div>
+              (() => {
+                const existingReview = reviews.find((r) => r.user_id === user.id);
+                if (existingReview && !isEditing) {
+                  return (
+                    <div className="bg-primary/5 border border-primary/20 p-4 rounded-xl flex flex-col gap-2">
+                      <div className="flex justify-between items-center text-xs">
+                        <span className="font-bold text-foreground">Your Review</span>
+                        <button 
+                          onClick={() => {
+                            setRating(existingReview.rating);
+                            setComment(existingReview.comment || "");
+                            setIsEditing(true);
+                          }}
+                          className="text-[10px] text-primary hover:underline font-bold"
+                        >
+                          Edit Review
+                        </button>
+                      </div>
+                      <div className="flex text-amber-500 font-bold">
+                        {[...Array(5)].map((_, i) => (
+                          <Star
+                            key={i}
+                            className={`w-3.5 h-3.5 ${i < existingReview.rating ? "fill-current" : "opacity-30"}`}
+                          />
+                        ))}
+                      </div>
+                      {existingReview.comment && (
+                        <p className="text-xs text-muted-foreground italic leading-normal">
+                          &ldquo;{existingReview.comment}&rdquo;
+                        </p>
+                      )}
+                    </div>
+                  );
+                }
 
-                <div>
-                  <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Comments</label>
-                  <textarea
-                    rows={3}
-                    placeholder="Tell us what you made!"
-                    value={comment}
-                    onChange={(e) => setComment(e.target.value)}
-                    required
-                    className="w-full mt-1 border border-border rounded-lg p-3 md:p-2 text-base md:text-xs text-foreground bg-background focus:outline-none"
-                  />
-                </div>
+                if (!existingReview && !canReview) {
+                  return (
+                    <div className="text-center py-6 px-4 bg-muted/10 border border-dashed border-border/80 rounded-xl flex flex-col gap-2">
+                      <ShieldCheck className="w-8 h-8 text-muted-foreground/60 mx-auto" />
+                      <p className="text-xs text-muted-foreground leading-normal font-medium">
+                        Only customers who purchased this product can leave a review.
+                      </p>
+                    </div>
+                  );
+                }
 
-                <button
-                  type="submit"
-                  disabled={submittingReview}
-                  className="w-full py-2 bg-primary text-primary-foreground font-bold text-xs rounded-lg hover:bg-primary/95 transition-colors text-center"
-                >
-                  {submittingReview ? "Posting..." : "Submit Review"}
-                </button>
-              </form>
+                return (
+                  <form onSubmit={handleReviewSubmit} className="flex flex-col gap-3">
+                    <div>
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Rating</label>
+                      <div className="flex gap-1.5 mt-1.5">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <button
+                            key={star}
+                            type="button"
+                            onClick={() => setRating(star)}
+                            className="focus:outline-none transition-transform hover:scale-110"
+                          >
+                            <Star
+                              className={`w-5 h-5 ${
+                                star <= rating ? "fill-amber-500 text-amber-500" : "text-muted-foreground/30"
+                              }`}
+                            />
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Comments</label>
+                      <textarea
+                        rows={3}
+                        placeholder="Tell us what you made!"
+                        value={comment}
+                        onChange={(e) => setComment(e.target.value)}
+                        required
+                        className="w-full mt-1 border border-border rounded-lg p-3 md:p-2 text-base md:text-xs text-foreground bg-background focus:outline-none"
+                      />
+                    </div>
+
+                    <div className="flex gap-2">
+                      <button
+                        type="submit"
+                        disabled={submittingReview}
+                        className="flex-grow py-2 bg-primary text-primary-foreground font-bold text-xs rounded-lg hover:bg-primary/95 transition-colors text-center"
+                      >
+                        {submittingReview ? "Posting..." : existingReview ? "Update Review" : "Submit Review"}
+                      </button>
+                      {existingReview && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setIsEditing(false);
+                            setComment("");
+                          }}
+                          className="px-3 py-2 bg-secondary text-secondary-foreground font-bold text-xs rounded-lg hover:bg-secondary/80 transition-colors"
+                        >
+                          Cancel
+                        </button>
+                      )}
+                    </div>
+                  </form>
+                );
+              })()
             ) : (
               <div className="text-center py-4 flex flex-col gap-2">
                 <p className="text-xs text-muted-foreground leading-normal">

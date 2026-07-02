@@ -61,7 +61,6 @@ async function sendSMS(toNumber: string, message: string): Promise<{ success: bo
     return { success: false, error: err instanceof Error ? err.message : "Network error" };
   }
 }
-
 async function sendFast2SMS(toNumber: string, message: string): Promise<{ success: boolean; error?: string }> {
   const apiKey = process.env.FAST2SMS_API_KEY;
   if (!apiKey) {
@@ -182,13 +181,18 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
           if (apiKey) {
             const emailHtml = `
               <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 12px; overflow: hidden; background-color: #fcfdfa; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);">
+                <!-- Header with Brand Branding -->
                 <div style="background-color: #15803d; padding: 32px 24px; text-align: center; border-bottom: 4px solid #166534;">
                   <div style="font-size: 26px; font-weight: 800; color: #ffffff; letter-spacing: 0.5px; font-family: sans-serif;">🍄 Milky Mushrooms</div>
                   <p style="color: #d1fae5; margin: 8px 0 0; font-size: 13px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;">Order Despatched</p>
                 </div>
+                
+                <!-- Body Content -->
                 <div style="padding: 32px 24px; color: #333333; line-height: 1.6;">
                   <h2 style="color: #15803d; font-size: 18px; margin-top: 0; font-weight: 800;">Hi ${customerName},</h2>
                   <p style="font-size: 14px;">Great news! Your Milky Mushrooms order has been shipped and is on its way to you.</p>
+                  
+                  <!-- Shipment Details Card -->
                   <div style="background-color: #f3f6f1; border-radius: 8px; padding: 20px; border-left: 4px solid #15803d; margin: 24px 0;">
                     <h3 style="color: #15803d; margin-top: 0; margin-bottom: 12px; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px;">Delivery Details</h3>
                     <p style="margin: 6px 0; font-size: 13px;"><strong>Order ID:</strong> <span style="font-family: monospace;">${id}</span></p>
@@ -197,15 +201,20 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
                     <p style="margin: 6px 0; font-size: 13px;"><strong>Shipment Status:</strong> Shipped</p>
                     <p style="margin: 6px 0; font-size: 13px; color: #666;"><strong>Estimated Delivery:</strong> 3-5 business days</p>
                   </div>
+                  
                   <div style="text-align: center; margin: 32px 0;">
                     <a href="${trackingUrl}" target="_blank" style="background-color: #15803d; color: #ffffff; padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: bold; text-decoration: none; display: inline-block; box-shadow: 0 2px 4px rgba(21, 128, 61, 0.3);">Track Your Shipment</a>
                   </div>
+                  
                   <p style="font-size: 12px; color: #666666; margin-top: 24px; text-align: center; line-height: 1.4;">
                     If the button above doesn't work, you can track this using India Post's tracking page at:<br/>
                     <a href="${trackingUrl}" style="color: #15803d; text-decoration: underline;">${trackingUrl}</a>
                   </p>
+                  
                   <p style="font-size: 14px; margin-top: 32px; border-top: 1px solid #e0e0e0; padding-top: 20px; font-weight: bold;">Warm regards,<br/><span style="color: #15803d;">The Milky Mushrooms Team</span></p>
                 </div>
+                
+                <!-- Footer with Contact Info -->
                 <div style="background-color: #f1f5f9; padding: 24px; text-align: center; font-size: 11px; color: #64748b; border-top: 1px solid #e2e8f0;">
                   <p style="margin: 0 0 8px;">Questions or need help? Contact support at <a href="mailto:support@milkymushroom.in" style="color: #15803d;">support@milkymushroom.in</a> or call <a href="tel:+919988776655" style="color: #15803d;">+91 99887 76655</a></p>
                   <p style="margin: 0;">This email was sent to ${customerEmail}. Thank you for shopping organic!</p>

@@ -35,6 +35,8 @@ export interface Order {
   payment_id?: string;
   razorpay_order_id?: string;
   address?: string;
+  tracking_id?: string | null;
+  courier_name?: string | null;
   created_at: string;
   items?: OrderItem[];
 }
@@ -56,6 +58,8 @@ export interface Review {
   comment?: string;
   created_at: string;
   user_name?: string;
+  product_name?: string;
+  location?: string;
 }
 
 export interface Address {

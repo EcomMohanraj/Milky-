@@ -83,6 +83,8 @@ interface MockOrder {
   status: string;
   payment_id: string | null;
   address: string;
+  tracking_id: string | null;
+  courier_name: string | null;
   created_at: string;
 }
 
@@ -131,14 +133,70 @@ const loadMockDb = (): MockDb => {
   // Initialize with seed data
   const hashedPw = bcrypt.hashSync("password", 10);
   const data: MockDb = {
-    users: [],
+    users: [
+      {
+        id: "11111111-1111-1111-1111-111111111111",
+        name: "Milky Mushrooms Admin",
+        email: "admin@milky.com",
+        phone: "+91 86107 55195",
+        role: "admin",
+        password_hash: hashedPw,
+        is_verified: true,
+        verification_token: null,
+        created_at: new Date().toISOString()
+      },
+      {
+        id: "22222222-2222-2222-2222-222222222222",
+        name: "Mohan Kumar",
+        email: "customer@gmail.com",
+        phone: "+91 99887 76655",
+        role: "customer",
+        password_hash: hashedPw,
+        is_verified: true,
+        verification_token: null,
+        created_at: new Date().toISOString()
+      },
+      {
+        id: "22222222-2222-2222-2222-222222222223",
+        name: "Senthil Kumar",
+        email: "senthil@gmail.com",
+        phone: "+91 98765 43210",
+        role: "customer",
+        password_hash: hashedPw,
+        is_verified: true,
+        verification_token: null,
+        created_at: new Date().toISOString()
+      },
+      {
+        id: "22222222-2222-2222-2222-222222222224",
+        name: "Meenakshi R.",
+        email: "meenakshi@gmail.com",
+        phone: "+91 98765 43211",
+        role: "customer",
+        password_hash: hashedPw,
+        is_verified: true,
+        verification_token: null,
+        created_at: new Date().toISOString()
+      },
+      {
+        id: "22222222-2222-2222-2222-222222222225",
+        name: "Dr. Vinoth",
+        email: "vinoth@gmail.com",
+        phone: "+91 98765 43212",
+        role: "customer",
+        password_hash: hashedPw,
+        is_verified: true,
+        verification_token: null,
+        created_at: new Date().toISOString()
+      }
+    ],
     products: [
       {
         id: "33333333-3333-3333-3333-333333333331",
         name: "Premium Fresh Milky Mushrooms",
         slug: "premium-fresh-milky-mushrooms",
         description: "Freshly harvested organic Milky Mushrooms (Calocybe indica) directly from our farm beds. These mushrooms are known for their firm, meaty texture, milky white appearance, and long shelf life. Perfect for stir-fries, soups, and curries.",
-        image: "/images/fresh_milky_mushrooms.png",
+        image: "/images/fresh_milky_mushrooms.webp",
         price: 240.0,
         stock: 100,
         category: "Fresh",
@@ -156,7 +214,7 @@ const loadMockDb = (): MockDb => {
         name: "Dehydrated Milky Mushroom Slices",
         slug: "dehydrated-milky-mushroom-slices",
         description: "Premium sundried Milky Mushroom slices with intense earthy aroma. Dehydrated at optimal temperatures to preserve nutrients and prolong shelf-life up to 6 months. Rehydrate in warm water for 15 minutes before cooking.",
-        image: "/images/dried_milky_mushrooms.png",
+        image: "/images/dried_milky_mushrooms.webp",
         price: 350.0,
         stock: 50,
         category: "Dried",
@@ -174,7 +232,7 @@ const loadMockDb = (): MockDb => {
         name: "Milky Mushroom Cultivation Spawn",
         slug: "milky-mushroom-spawn",
         description: "High-quality, laboratory-grown, fully colonized grain spawn of Calocybe indica. Cultivated on sorghum grains under strict sterile conditions. Ideal for mushroom growers looking to inoculate straw beds.",
-        image: "/images/milky_mushroom_spawn.png",
+        image: "/images/milky_mushroom_spawn.webp",
         price: 120.0,
         stock: 200,
         category: "Spawn",
@@ -188,7 +246,7 @@ const loadMockDb = (): MockDb => {
         name: "Organic Milky Mushroom Powder",
         slug: "organic-milky-mushroom-powder",
         description: "100% pure organic Milky Mushroom powder. Ground from dried, selected mushrooms, rich in vitamins and immune-supporting beta-glucans. Add to soups, smoothies, or baking flour for a nutritious boost.",
-        image: "/images/milky_mushroom_powder.png",
+        image: "/images/milky_mushroom_powder.webp",
         price: 450.0,
         stock: 30,
         category: "Powder",
@@ -225,7 +283,7 @@ const loadMockDb = (): MockDb => {
 3. **Add Masalas**: Add ginger-garlic paste, fry for 1 minute, then add tomato and stir in the spices. Cook until oil separates.
 4. **Cook Mushrooms**: Add chopped mushrooms. Do not add water; mushrooms release their own moisture.
 5. **Finish**: Sauté on medium-high heat for 8-10 minutes until mushrooms are tender and dry. Sprinkle black pepper, garnish, and serve hot!`,
-        image: "/images/spicy_mushroom_fry.png",
+        image: "/images/spicy_mushroom_fry.webp",
         created_at: new Date().toISOString()
       },
       {
@@ -251,7 +309,7 @@ const loadMockDb = (): MockDb => {
 4. **Thicken**: Sprinkle flour over mushrooms, stir well for 1 minute.
 5. **Simmer**: Slowly pour in broth while whisking to avoid lumps. Bring to a boil, reduce heat, and simmer for 10 minutes.
 6. **Finish**: Stir in fresh cream, salt, and pepper. Simmer for 1 minute and serve warm.`,
-        image: "/images/creamy_mushroom_soup.png",
+        image: "/images/creamy_mushroom_soup.webp",
         created_at: new Date().toISOString()
       },
       {
@@ -300,10 +358,146 @@ const loadMockDb = (): MockDb => {
         created_at: new Date().toISOString()
       }
     ],
-    addresses: [] as MockAddress[],
-    orders: [] as MockOrder[],
-    order_items: [] as MockOrderItem[],
-    reviews: [] as MockReview[]
+    addresses: [
+      {
+        id: "55555555-5555-5555-5555-555555555551",
+        user_id: "22222222-2222-2222-2222-222222222222",
+        address: "123 Farm Street",
+        city: "Palani",
+        pincode: "624601",
+        is_default: true,
+        created_at: new Date().toISOString()
+      },
+      {
+        id: "55555555-5555-5555-5555-555555555552",
+        user_id: "22222222-2222-2222-2222-222222222223",
+        address: "45 Temple Road",
+        city: "Palani",
+        pincode: "624601",
+        is_default: true,
+        created_at: new Date().toISOString()
+      },
+      {
+        id: "55555555-5555-5555-5555-555555555553",
+        user_id: "22222222-2222-2222-2222-222222222224",
+        address: "88 Main Bazaar",
+        city: "Dindigul",
+        pincode: "624001",
+        is_default: true,
+        created_at: new Date().toISOString()
+      },
+      {
+        id: "55555555-5555-5555-5555-555555555554",
+        user_id: "22222222-2222-2222-2222-222222222225",
+        address: "12 Lake View Road",
+        city: "Kodaikanal",
+        pincode: "624101",
+        is_default: true,
+        created_at: new Date().toISOString()
+      }
+    ] as MockAddress[],
+    orders: [
+      {
+        id: "66666666-6666-6666-6666-666666666661",
+        user_id: "22222222-2222-2222-2222-222222222222",
+        amount: 240.0,
+        status: "paid",
+        payment_id: "pay_mohan_123",
+        address: "123 Farm Street, Palani - 624601",
+        tracking_id: null,
+        courier_name: null,
+        created_at: new Date().toISOString()
+      },
+      {
+        id: "66666666-6666-6666-6666-666666666662",
+        user_id: "22222222-2222-2222-2222-222222222223",
+        amount: 240.0,
+        status: "paid",
+        payment_id: "pay_senthil_123",
+        address: "45 Temple Road, Palani - 624601",
+        tracking_id: null,
+        courier_name: null,
+        created_at: new Date().toISOString()
+      },
+      {
+        id: "66666666-6666-6666-6666-666666666663",
+        user_id: "22222222-2222-2222-2222-222222222224",
+        amount: 350.0,
+        status: "paid",
+        payment_id: "pay_meenakshi_123",
+        address: "88 Main Bazaar, Dindigul - 624001",
+        tracking_id: null,
+        courier_name: null,
+        created_at: new Date().toISOString()
+      },
+      {
+        id: "66666666-6666-6666-6666-666666666664",
+        user_id: "22222222-2222-2222-2222-222222222225",
+        amount: 450.0,
+        status: "paid",
+        payment_id: "pay_vinoth_123",
+        address: "12 Lake View Road, Kodaikanal - 624101",
+        tracking_id: null,
+        courier_name: null,
+        created_at: new Date().toISOString()
+      }
+    ] as MockOrder[],
+    order_items: [
+      {
+        id: "77777777-7777-7777-7777-777777777771",
+        order_id: "66666666-6666-6666-6666-666666666661",
+        product_id: "33333333-3333-3333-3333-333333333331",
+        quantity: 1,
+        price: 240.0
+      },
+      {
+        id: "77777777-7777-7777-7777-777777777772",
+        order_id: "66666666-6666-6666-6666-666666666662",
+        product_id: "33333333-3333-3333-3333-333333333331",
+        quantity: 1,
+        price: 240.0
+      },
+      {
+        id: "77777777-7777-7777-7777-777777777773",
+        order_id: "66666666-6666-6666-6666-666666666663",
+        product_id: "33333333-3333-3333-3333-333333333332",
+        quantity: 1,
+        price: 350.0
+      },
+      {
+        id: "77777777-7777-7777-7777-777777777774",
+        order_id: "66666666-6666-6666-6666-666666666664",
+        product_id: "33333333-3333-3333-3333-333333333334",
+        quantity: 1,
+        price: 450.0
+      }
+    ] as MockOrderItem[],
+    reviews: [
+      {
+        id: "88888888-8888-8888-8888-888888888881",
+        product_id: "33333333-3333-3333-3333-333333333331",
+        user_id: "22222222-2222-2222-2222-222222222223",
+        rating: 5,
+        comment: "I purchased fresh Milky Mushrooms for our family biryani. The texture was exactly like paneer or chicken, and it stayed fresh in my fridge for 10 days! Remarkable quality.",
+        created_at: new Date().toISOString()
+      },
+      {
+        id: "88888888-8888-8888-8888-888888888882",
+        product_id: "33333333-3333-3333-3333-333333333332",
+        user_id: "22222222-2222-2222-2222-222222222224",
+        rating: 5,
+        comment: "Highly recommend the dried slices. I rehydrated them for soup, and the flavor was outstanding. Happy to see organic farm practices close to home.",
+        created_at: new Date().toISOString()
+      },
+      {
+        id: "88888888-8888-8888-8888-888888888883",
+        product_id: "33333333-3333-3333-3333-333333333334",
+        user_id: "22222222-2222-2222-2222-222222222225",
+        rating: 5,
+        comment: "Great source of plant protein for my vegetarian diet. Excellent customer service, very prompt WhatsApp replies, and fresh delivery.",
+        created_at: new Date().toISOString()
+      }
+    ] as MockReview[]
   };
   saveMockDb(data);
   return data;
@@ -462,6 +656,8 @@ export const mockQuery = async (text: string, params: unknown[] = []) => {
         status: o.status,
         payment_id: o.payment_id,
         address: o.address,
+        tracking_id: o.tracking_id || null,
+        courier_name: o.courier_name || null,
         created_at: o.created_at,
         items
       };
@@ -556,6 +752,8 @@ export const mockQuery = async (text: string, params: unknown[] = []) => {
       status: (status as string) || "pending",
       payment_id: (payment_id as string) || null,
       address: address as string,
+      tracking_id: null,
+      courier_name: null,
       created_at: new Date().toISOString()
     };
     dbData.orders.push(newOrder);
@@ -657,6 +855,38 @@ export const mockQuery = async (text: string, params: unknown[] = []) => {
     const order = dbData.orders.find((o: MockOrder) => o.id === orderId);
     if (order) {
       order.status = status as string;
+      save();
+    }
+    return { rows: [] };
+  }
+
+  // 23c. UPDATE public.orders SET status = $1, tracking_id = $2, courier_name = $3 WHERE id = $4
+  if (normalized.includes("UPDATE public.orders SET status = $1, tracking_id = $2, courier_name = $3 WHERE id = $4") ||
+      (normalized.includes("UPDATE public.orders") && normalized.includes("courier_name = $3"))) {
+    const status = params[0] as string;
+    const trackingId = params[1] as string;
+    const courierName = params[2] as string;
+    const orderId = params[3] as string;
+    const order = dbData.orders.find((o: MockOrder) => o.id === orderId);
+    if (order) {
+      order.status = status as string;
+      order.tracking_id = trackingId as string || null;
+      order.courier_name = courierName as string || null;
+      save();
+    }
+    return { rows: [] };
+  }
+
+  // 23d. UPDATE public.orders SET status = $1, tracking_id = $2 WHERE id = $3
+  if (normalized.includes("UPDATE public.orders SET status = $1, tracking_id = $2 WHERE id = $3") ||
+      (normalized.includes("UPDATE public.orders") && normalized.includes("tracking_id = $2"))) {
+    const status = params[0] as string;
+    const trackingId = params[1] as string;
+    const orderId = params[2] as string;
+    const order = dbData.orders.find((o: MockOrder) => o.id === orderId);
+    if (order) {
+      order.status = status as string;
+      order.tracking_id = trackingId as string || null;
       save();
     }
     return { rows: [] };
@@ -774,6 +1004,47 @@ export const mockQuery = async (text: string, params: unknown[] = []) => {
     return { rows: items };
   }
 
+  // 32. SELECT 1 FROM public.orders o JOIN public.order_items oi ON o.id = oi.order_id WHERE o.user_id = $1 AND oi.product_id = $2 AND o.status IN ('paid', 'shipped', 'delivered') LIMIT 1
+  if (normalized.includes("FROM public.orders o JOIN public.order_items oi") || 
+      (normalized.includes("FROM public.orders o") && normalized.includes("oi.product_id = $2") && normalized.includes("status IN ('paid'"))) {
+    const userId = params[0] as string;
+    const productId = params[1] as string;
+    const hasPaidOrder = dbData.orders.some((o: MockOrder) => 
+      o.user_id === userId &&
+      ["paid", "shipped", "delivered"].includes(o.status) &&
+      dbData.order_items.some((oi: MockOrderItem) => oi.order_id === o.id && oi.product_id === productId)
+    );
+    return { rows: hasPaidOrder ? [{ exists: 1 }] : [] };
+  }
+
+  // 33. SELECT r.*, u.name as user_name, COALESCE(a.city, 'Verified Buyer') as location FROM public.reviews r JOIN public.users u ON r.user_id = u.id LEFT JOIN public.addresses a ON a.user_id = u.id AND a.is_default = true WHERE r.rating >= 4 ORDER BY r.rating DESC, r.created_at DESC LIMIT 6
+  if (normalized.includes("FROM public.reviews r JOIN public.users u") && normalized.includes("COALESCE(a.city")) {
+    const matchedReviews = dbData.reviews
+      .filter((r: MockReview) => r.rating >= 4)
+      .map((r: MockReview) => {
+        const user = dbData.users.find((u: MockUser) => u.id === r.user_id);
+        const address = dbData.addresses.find((a: MockAddress) => a.user_id === r.user_id && a.is_default);
+        const product = dbData.products.find((p: MockProduct) => p.id === r.product_id);
+        return {
+          id: r.id,
+          product_id: r.product_id,
+          user_id: r.user_id,
+          rating: r.rating,
+          comment: r.comment,
+          created_at: r.created_at,
+          user_name: user ? user.name : "Unknown User",
+          product_name: product ? product.name : "Milky Mushroom",
+          location: address ? address.city : "Verified Buyer"
+        };
+      })
+      .sort((a, b) => {
+        if (b.rating !== a.rating) return b.rating - a.rating;
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      })
+      .slice(0, 6);
+    return { rows: matchedReviews };
+  }
+
   console.warn("Unrecognized mock query:", text, params);
   return { rows: [] };
 };
@@ -849,6 +1120,8 @@ export const initDb = async () => {
         status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'paid', 'failed', 'shipped', 'delivered')),
         payment_id TEXT,
         address TEXT,
+        tracking_id TEXT,
+        courier_name TEXT,
         created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
       );
     `);
@@ -898,6 +1171,14 @@ export const initDb = async () => {
       ALTER TABLE public.products ADD COLUMN IF NOT EXISTS category TEXT;
     `);
 
+    await query(`
+      ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS tracking_id TEXT;
+    `);
+
+    await query(`
+      ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS courier_name TEXT;
+    `);
+
     // Remove foreign keys linking to Supabase auth schema if they exist
     try {
       await query(`ALTER TABLE public.users DROP CONSTRAINT IF EXISTS users_id_fkey;`);
@@ -934,7 +1215,7 @@ export const initDb = async () => {
         name: "Premium Fresh Milky Mushrooms",
         slug: "premium-fresh-milky-mushrooms",
         description: "Freshly harvested organic Milky Mushrooms (Calocybe indica) directly from our farm beds. These mushrooms are known for their firm, meaty texture, milky white appearance, and long shelf life. Perfect for stir-fries, soups, and curries.",
-        image: "/images/fresh_milky_mushrooms.png",
+        image: "/images/fresh_milky_mushrooms.webp",
         price: 240.0,
         stock: 100,
         category: "Fresh",
@@ -951,7 +1232,7 @@ export const initDb = async () => {
         name: "Dehydrated Milky Mushroom Slices",
         slug: "dehydrated-milky-mushroom-slices",
         description: "Premium sundried Milky Mushroom slices with intense earthy aroma. Dehydrated at optimal temperatures to preserve nutrients and prolong shelf-life up to 6 months. Rehydrate in warm water for 15 minutes before cooking.",
-        image: "/images/dried_milky_mushrooms.png",
+        image: "/images/dried_milky_mushrooms.webp",
         price: 350.0,
         stock: 50,
         category: "Dried",
@@ -968,7 +1249,7 @@ export const initDb = async () => {
         name: "Milky Mushroom Cultivation Spawn",
         slug: "milky-mushroom-spawn",
         description: "High-quality, laboratory-grown, fully colonized grain spawn of Calocybe indica. Cultivated on sorghum grains under strict sterile conditions. Ideal for mushroom growers looking to inoculate straw beds.",
-        image: "/images/milky_mushroom_spawn.png",
+        image: "/images/milky_mushroom_spawn.webp",
         price: 120.0,
         stock: 200,
         category: "Spawn",
@@ -981,7 +1262,7 @@ export const initDb = async () => {
         name: "Organic Milky Mushroom Powder",
         slug: "organic-milky-mushroom-powder",
         description: "100% pure organic Milky Mushroom powder. Ground from dried, selected mushrooms, rich in vitamins and immune-supporting beta-glucans. Add to soups, smoothies, or baking flour for a nutritious boost.",
-        image: "/images/milky_mushroom_powder.png",
+        image: "/images/milky_mushroom_powder.webp",
         price: 450.0,
         stock: 30,
         category: "Powder",
@@ -1027,7 +1308,7 @@ export const initDb = async () => {
 3. **Add Masalas**: Add ginger-garlic paste, fry for 1 minute, then add tomato and stir in the spices. Cook until oil separates.
 4. **Cook Mushrooms**: Add chopped mushrooms. Do not add water; mushrooms release their own moisture.
 5. **Finish**: Sauté on medium-high heat for 8-10 minutes until mushrooms are tender and dry. Sprinkle black pepper, garnish, and serve hot!`,
-        image: "/images/spicy_mushroom_fry.png"
+        image: "/images/spicy_mushroom_fry.webp"
       };
 
       const b2 = {
@@ -1052,7 +1333,7 @@ export const initDb = async () => {
 4. **Thicken**: Sprinkle flour over mushrooms, stir well for 1 minute.
 5. **Simmer**: Slowly pour in broth while whisking to avoid lumps. Bring to a boil, reduce heat, and simmer for 10 minutes.
 6. **Finish**: Stir in fresh cream, salt, and pepper. Simmer for 1 minute and serve warm.`,
-        image: "/images/creamy_mushroom_soup.png"
+        image: "/images/creamy_mushroom_soup.webp"
       };
 
       const b3 = {
@@ -1104,6 +1385,98 @@ export const initDb = async () => {
            VALUES ($1, $2, $3, $4)`,
           [b.title, b.slug, b.content, b.image]
         );
+      }
+    }
+
+    // 6. Seed reviews and related data if empty
+    const reviewsCount = await query("SELECT COUNT(*) FROM public.reviews");
+    if (parseInt(reviewsCount.rows[0].count) === 0) {
+      const hashedPw = await bcrypt.hash("password", 10);
+      
+      const uSenthil = await query("SELECT id FROM public.users WHERE email = $1", ["senthil@gmail.com"]);
+      let senthilId = uSenthil.rows[0]?.id;
+      if (!senthilId) {
+        const insertU = await query(
+          `INSERT INTO public.users (name, email, phone, role, password_hash, is_verified)
+           VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`,
+          ["Senthil Kumar", "senthil@gmail.com", "+91 98765 43210", "customer", hashedPw, true]
+        );
+        senthilId = insertU.rows[0].id;
+      }
+
+      const uMeenakshi = await query("SELECT id FROM public.users WHERE email = $1", ["meenakshi@gmail.com"]);
+      let meenakshiId = uMeenakshi.rows[0]?.id;
+      if (!meenakshiId) {
+        const insertU = await query(
+          `INSERT INTO public.users (name, email, phone, role, password_hash, is_verified)
+           VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`,
+          ["Meenakshi R.", "meenakshi@gmail.com", "+91 98765 43211", "customer", hashedPw, true]
+        );
+        meenakshiId = insertU.rows[0].id;
+      }
+
+      const uVinoth = await query("SELECT id FROM public.users WHERE email = $1", ["vinoth@gmail.com"]);
+      let vinothId = uVinoth.rows[0]?.id;
+      if (!vinothId) {
+        const insertU = await query(
+          `INSERT INTO public.users (name, email, phone, role, password_hash, is_verified)
+           VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`,
+          ["Dr. Vinoth", "vinoth@gmail.com", "+91 98765 43212", "customer", hashedPw, true]
+        );
+        vinothId = insertU.rows[0].id;
+      }
+
+      const pFresh = await query("SELECT id FROM public.products WHERE slug = $1", ["premium-fresh-milky-mushrooms"]);
+      const freshId = pFresh.rows[0]?.id;
+
+      const pDried = await query("SELECT id FROM public.products WHERE slug = $1", ["dehydrated-milky-mushroom-slices"]);
+      const driedId = pDried.rows[0]?.id;
+
+      const pPowder = await query("SELECT id FROM public.products WHERE slug = $1", ["organic-milky-mushroom-powder"]);
+      const powderId = pPowder.rows[0]?.id;
+
+      if (senthilId) {
+        await query(`INSERT INTO public.addresses (user_id, address, city, pincode, is_default) VALUES ($1, $2, $3, $4, $5) ON CONFLICT DO NOTHING`, [senthilId, "45 Temple Road", "Palani", "624601", true]);
+      }
+      if (meenakshiId) {
+        await query(`INSERT INTO public.addresses (user_id, address, city, pincode, is_default) VALUES ($1, $2, $3, $4, $5) ON CONFLICT DO NOTHING`, [meenakshiId, "88 Main Bazaar", "Dindigul", "624001", true]);
+      }
+      if (vinothId) {
+        await query(`INSERT INTO public.addresses (user_id, address, city, pincode, is_default) VALUES ($1, $2, $3, $4, $5) ON CONFLICT DO NOTHING`, [vinothId, "12 Lake View Road", "Kodaikanal", "624101", true]);
+      }
+
+      const uMohan = await query("SELECT id FROM public.users WHERE email = $1", ["customer@gmail.com"]);
+      const mohanId = uMohan.rows[0]?.id;
+      if (mohanId) {
+        await query(`INSERT INTO public.addresses (user_id, address, city, pincode, is_default) VALUES ($1, $2, $3, $4, $5) ON CONFLICT DO NOTHING`, [mohanId, "123 Farm Street", "Palani", "624601", true]);
+        
+        const oMohan = await query("SELECT 1 FROM public.orders WHERE user_id = $1", [mohanId]);
+        if (oMohan.rows.length === 0 && freshId) {
+          const insertO = await query(`INSERT INTO public.orders (user_id, amount, status, payment_id, address) VALUES ($1, $2, $3, $4, $5) RETURNING id`, [mohanId, 240.0, "paid", "pay_mohan_123", "123 Farm Street, Palani - 624601"]);
+          const orderId = insertO.rows[0].id;
+          await query(`INSERT INTO public.order_items (order_id, product_id, quantity, price) VALUES ($1, $2, $3, $4)`, [orderId, freshId, 1, 240.0]);
+        }
+      }
+
+      if (senthilId && freshId) {
+        const oSenthil = await query(`INSERT INTO public.orders (user_id, amount, status, payment_id, address) VALUES ($1, $2, $3, $4, $5) RETURNING id`, [senthilId, 240.0, "paid", "pay_senthil_123", "45 Temple Road, Palani - 624601"]);
+        const orderId = oSenthil.rows[0].id;
+        await query(`INSERT INTO public.order_items (order_id, product_id, quantity, price) VALUES ($1, $2, $3, $4)`, [orderId, freshId, 1, 240.0]);
+        await query(`INSERT INTO public.reviews (product_id, user_id, rating, comment) VALUES ($1, $2, $3, $4) ON CONFLICT DO NOTHING`, [freshId, senthilId, 5, "I purchased fresh Milky Mushrooms for our family biryani. The texture was exactly like paneer or chicken, and it stayed fresh in my fridge for 10 days! Remarkable quality."]);
+      }
+
+      if (meenakshiId && driedId) {
+        const oMeenakshi = await query(`INSERT INTO public.orders (user_id, amount, status, payment_id, address) VALUES ($1, $2, $3, $4, $5) RETURNING id`, [meenakshiId, 350.0, "paid", "pay_meenakshi_123", "88 Main Bazaar, Dindigul - 624001"]);
+        const orderId = oMeenakshi.rows[0].id;
+        await query(`INSERT INTO public.order_items (order_id, product_id, quantity, price) VALUES ($1, $2, $3, $4)`, [orderId, driedId, 1, 350.0]);
+        await query(`INSERT INTO public.reviews (product_id, user_id, rating, comment) VALUES ($1, $2, $3, $4) ON CONFLICT DO NOTHING`, [driedId, meenakshiId, 5, "Highly recommend the dried slices. I rehydrated them for soup, and the flavor was outstanding. Happy to see organic farm practices close to home."]);
+      }
+
+      if (vinothId && powderId) {
+        const oVinoth = await query(`INSERT INTO public.orders (user_id, amount, status, payment_id, address) VALUES ($1, $2, $3, $4, $5) RETURNING id`, [vinothId, 450.0, "paid", "pay_vinoth_123", "12 Lake View Road, Kodaikanal - 624101"]);
+        const orderId = oVinoth.rows[0].id;
+        await query(`INSERT INTO public.order_items (order_id, product_id, quantity, price) VALUES ($1, $2, $3, $4)`, [orderId, powderId, 1, 450.0]);
+        await query(`INSERT INTO public.reviews (product_id, user_id, rating, comment) VALUES ($1, $2, $3, $4) ON CONFLICT DO NOTHING`, [powderId, vinothId, 5, "Great source of plant protein for my vegetarian diet. Excellent customer service, very prompt WhatsApp replies, and fresh delivery."]);
       }
     }
 

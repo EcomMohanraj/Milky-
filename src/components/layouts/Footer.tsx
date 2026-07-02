@@ -80,7 +80,7 @@ export const Footer: React.FC = () => {
               </li>
               <li className="flex gap-2.5 items-center text-muted-foreground">
                 <Mail className="h-4 w-4 text-primary shrink-0" />
-                <a href="mailto:fresh@milkymushrooms.com" className="hover:text-primary transition-colors py-1 md:py-0 inline-block">fresh@milkymushrooms.com</a>
+                <a href="mailto:orders@milkymushroom.in" className="hover:text-primary transition-colors py-1 md:py-0 inline-block">orders@milkymushroom.in</a>
               </li>
             </ul>
           </div>

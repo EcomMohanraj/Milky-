@@ -1,5 +1,3 @@
-"use client";
-
 import React from "react";
 import Image from "next/image";
 import { Leaf, CheckSquare, MapPin } from "lucide-react";
@@ -10,13 +8,13 @@ export default function AboutFarmPage() {
       name: "Ramesh P.",
       role: "Farm Founder & Lead Cultivator",
       bio: "Over 12 years of experience in tropical mushroom spawn run and bed cultivation. Ramesh handles substrate sterilization quality controls.",
-      image: "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=400",
+      image: "/images/about/ramesh_founder.webp",
     },
     {
       name: "Dr. Anjali Devi",
       role: "Mushroom Mycologist & Quality Manager",
       bio: "Anjali leads our sterile grain spawn laboratory, ensuring spawn purity and selecting high-yield Calocybe indica cultures.",
-      image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=400",
+      image: "/images/about/anjali_mycologist.webp",
     },
   ];
 
@@ -36,10 +34,10 @@ export default function AboutFarmPage() {
   ];
 
   const galleryImages = [
-    "/images/fresh_milky_mushrooms.png",
-    "https://images.unsplash.com/photo-1511289081367-46c54b5f4ea7?auto=format&fit=crop&q=80&w=600",
-    "https://images.unsplash.com/photo-1504387828074-ab75684db3ff?auto=format&fit=crop&q=80&w=600",
-    "https://images.unsplash.com/photo-1608797178974-15b35a61d121?auto=format&fit=crop&q=80&w=600",
+    "/images/fresh_milky_mushrooms.webp",
+    "/images/about/gallery_1.webp",
+    "/images/about/gallery_2.webp",
+    "/images/about/gallery_3.webp",
   ];
 
   return (
@@ -63,7 +61,7 @@ export default function AboutFarmPage() {
       <section className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center bg-card border border-border/60 p-6 md:p-10 rounded-3xl shadow-sm">
         <div className="relative h-[280px] md:h-[400px] rounded-2xl overflow-hidden bg-secondary">
           <Image
-            src="https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&q=80&w=600"
+            src="/images/about/farm_landscape.webp"
             alt="Organic farming landscapes"
             fill
             className="object-cover"
