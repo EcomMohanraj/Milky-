@@ -295,8 +295,6 @@ function LoginContent() {
                 </button>
               </form>
             )}
-
-
             <div className="text-center mt-6 pt-4 border-t border-border/60">
               <button
                 onClick={() => {
