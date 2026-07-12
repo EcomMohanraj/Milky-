@@ -190,6 +190,7 @@ export default function RecipesPage() {
                     alt={selectedRecipe.title}
                     fill
                     className="object-cover"
+                    sizes="(max-width: 768px) 100vw, 600px"
                     priority
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent flex items-end p-5">

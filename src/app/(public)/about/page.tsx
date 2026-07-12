@@ -65,6 +65,7 @@ export default function AboutFarmPage() {
             alt="Organic farming landscapes"
             fill
             className="object-cover"
+            sizes="(max-width: 768px) 100vw, 50vw"
           />
         </div>
         <div className="flex flex-col gap-5">
@@ -186,6 +187,7 @@ export default function AboutFarmPage() {
                   alt={member.name}
                   fill
                   className="object-cover"
+                  sizes="112px"
                 />
               </div>
               <div className="flex flex-col gap-1.5 text-center sm:text-left">
@@ -209,6 +211,7 @@ export default function AboutFarmPage() {
                 alt={`Mushroom farm gallery ${idx + 1}`}
                 fill
                 className="object-cover hover:scale-105 transition-transform duration-300"
+                sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
               />
             </div>
           ))}

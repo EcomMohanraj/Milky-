@@ -1,6 +1,11 @@
 export function getProductImageUrl(imagePath: string | null | undefined): string {
   if (!imagePath) return "/images/fresh_milky_mushrooms.webp";
 
+  // Redirect legacy/broken product image references to correct local assets
+  if (imagePath.includes("premium-fresh-milky-mushrooms")) {
+    return "/images/fresh_milky_mushrooms.webp";
+  }
+
   // Redirect legacy Unsplash recipe images to optimized local WebP assets
   if (imagePath.includes("photo-1626132647523-66f5bf380027")) {
     return "/images/chettinad_mushroom_gravy.webp";

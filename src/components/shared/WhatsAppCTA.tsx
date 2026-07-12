@@ -11,7 +11,7 @@ export const WhatsAppCTA: React.FC = () => {
   const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
 
   return (
-    <div className="fixed bottom-6 left-6 z-40 pointer-events-auto">
+    <div className="fixed bottom-[calc(1.5rem+env(safe-area-inset-bottom,0px))] left-6 z-40 pointer-events-auto">
       <motion.a
         href={whatsappUrl}
         target="_blank"

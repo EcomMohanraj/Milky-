@@ -182,7 +182,7 @@ function LoginContent() {
                       placeholder="Enter your name"
                       {...registerForm.register("name")}
                       disabled={loading}
-                      className="w-full pl-10 pr-3 py-2 border border-border rounded-lg text-xs bg-background focus:outline-none disabled:opacity-60 text-foreground"
+                      className="w-full pl-10 pr-3 py-2.5 border border-border rounded-lg text-base md:text-xs bg-background focus:outline-none disabled:opacity-60 text-foreground"
                     />
                   </div>
                   {registerForm.formState.errors.name && (
@@ -199,7 +199,7 @@ function LoginContent() {
                       placeholder="name@email.com"
                       {...registerForm.register("email")}
                       disabled={loading}
-                      className="w-full pl-10 pr-3 py-2 border border-border rounded-lg text-xs bg-background focus:outline-none disabled:opacity-60 text-foreground"
+                      className="w-full pl-10 pr-3 py-2.5 border border-border rounded-lg text-base md:text-xs bg-background focus:outline-none disabled:opacity-60 text-foreground"
                     />
                   </div>
                   {registerForm.formState.errors.email && (
@@ -216,7 +216,7 @@ function LoginContent() {
                       placeholder="Mobile number"
                       {...registerForm.register("phone")}
                       disabled={loading}
-                      className="w-full pl-10 pr-3 py-2 border border-border rounded-lg text-xs bg-background focus:outline-none disabled:opacity-60 text-foreground"
+                      className="w-full pl-10 pr-3 py-2.5 border border-border rounded-lg text-base md:text-xs bg-background focus:outline-none disabled:opacity-60 text-foreground"
                     />
                   </div>
                   {registerForm.formState.errors.phone && (
@@ -233,7 +233,7 @@ function LoginContent() {
                       placeholder="Min 4 characters"
                       {...registerForm.register("password")}
                       disabled={loading}
-                      className="w-full pl-10 pr-3 py-2 border border-border rounded-lg text-xs bg-background focus:outline-none disabled:opacity-60 text-foreground"
+                      className="w-full pl-10 pr-3 py-2.5 border border-border rounded-lg text-base md:text-xs bg-background focus:outline-none disabled:opacity-60 text-foreground"
                     />
                   </div>
                   {registerForm.formState.errors.password && (
@@ -261,7 +261,7 @@ function LoginContent() {
                       placeholder="name@email.com"
                       {...loginForm.register("email")}
                       disabled={loading}
-                      className="w-full pl-10 pr-3 py-2 border border-border rounded-lg text-xs bg-background focus:outline-none disabled:opacity-60 text-foreground"
+                      className="w-full pl-10 pr-3 py-2.5 border border-border rounded-lg text-base md:text-xs bg-background focus:outline-none disabled:opacity-60 text-foreground"
                     />
                   </div>
                   {loginForm.formState.errors.email && (
@@ -278,7 +278,7 @@ function LoginContent() {
                       placeholder="Password"
                       {...loginForm.register("password")}
                       disabled={loading}
-                      className="w-full pl-10 pr-3 py-2 border border-border rounded-lg text-xs bg-background focus:outline-none disabled:opacity-60 text-foreground"
+                      className="w-full pl-10 pr-3 py-2.5 border border-border rounded-lg text-base md:text-xs bg-background focus:outline-none disabled:opacity-60 text-foreground"
                     />
                   </div>
                   {loginForm.formState.errors.password && (
@@ -295,8 +295,6 @@ function LoginContent() {
                 </button>
               </form>
             )}
-
-
             <div className="text-center mt-6 pt-4 border-t border-border/60">
               <button
                 onClick={() => {
