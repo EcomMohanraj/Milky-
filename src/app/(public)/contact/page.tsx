@@ -36,18 +36,41 @@ export default function ContactPage() {
     resolver: zodResolver(contactSchema),
   });
 
-  const onSubmit = () => {
+  const onSubmit = async (values: ContactFormValues) => {
     setSubmitting(true);
-    // Simulate API request
-    setTimeout(() => {
-      setSubmitting(false);
-      reset();
-      toast({
-        title: "Message Sent Successfully",
-        description: "Thank you for reaching out! Our farm team will contact you shortly.",
-        variant: "success",
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(values),
       });
-    }, 1500);
+
+      const data = await res.json();
+
+      if (res.ok) {
+        toast({
+          title: "Message Sent Successfully",
+          description: "Thank you for reaching out! Our farm team will contact you shortly.",
+          variant: "success",
+        });
+        reset();
+      } else {
+        toast({
+          title: "Failed to Send Message",
+          description: data.error || "Something went wrong.",
+          variant: "destructive",
+        });
+      }
+    } catch (err) {
+      console.error("Failed to submit contact form:", err);
+      toast({
+        title: "Submission Error",
+        description: "A network error occurred. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleCheckDelivery = (e: React.FormEvent) => {
