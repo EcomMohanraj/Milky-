@@ -105,6 +105,15 @@ interface MockReview {
   created_at: string;
 }
 
+interface MockInquiry {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  message: string;
+  created_at: string;
+}
+
 interface MockDb {
   users: MockUser[];
   products: MockProduct[];
@@ -113,6 +122,7 @@ interface MockDb {
   orders: MockOrder[];
   order_items: MockOrderItem[];
   reviews: MockReview[];
+  inquiries: MockInquiry[];
 }
 
 // Mock Database state management
@@ -124,7 +134,11 @@ const loadMockDb = (): MockDb => {
   const dbPath = getMockDbPath();
   if (fs.existsSync(dbPath)) {
     try {
-      return JSON.parse(fs.readFileSync(dbPath, "utf-8")) as MockDb;
+      const db = JSON.parse(fs.readFileSync(dbPath, "utf-8")) as MockDb;
+      if (!db.inquiries) {
+        db.inquiries = [];
+      }
+      return db;
     } catch (e) {
       console.error("Error reading mock DB file:", e);
     }
@@ -497,7 +511,8 @@ const loadMockDb = (): MockDb => {
         comment: "Great source of plant protein for my vegetarian diet. Excellent customer service, very prompt WhatsApp replies, and fresh delivery.",
         created_at: new Date().toISOString()
       }
-    ] as MockReview[]
+    ] as MockReview[],
+    inquiries: [] as MockInquiry[]
   };
   saveMockDb(data);
   return data;
@@ -1045,6 +1060,38 @@ export const mockQuery = async (text: string, params: unknown[] = []) => {
     return { rows: matchedReviews };
   }
 
+  // 34. INSERT INTO public.inquiries
+  if (normalized.includes("INSERT INTO public.inquiries")) {
+    const [name, email, phone, message] = params;
+    const newInquiry: MockInquiry = {
+      id: crypto.randomUUID(),
+      name: name as string,
+      email: email as string,
+      phone: phone as string,
+      message: message as string,
+      created_at: new Date().toISOString()
+    };
+    dbData.inquiries.push(newInquiry);
+    save();
+    return { rows: [newInquiry] };
+  }
+
+  // 35. SELECT * FROM public.inquiries ORDER BY created_at DESC
+  if (normalized.includes("SELECT * FROM public.inquiries") && normalized.includes("ORDER BY created_at DESC")) {
+    const sorted = [...dbData.inquiries].sort((a: MockInquiry, b: MockInquiry) => 
+      new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    );
+    return { rows: sorted };
+  }
+
+  // 36. DELETE FROM public.inquiries WHERE id = $1
+  if (normalized.includes("DELETE FROM public.inquiries WHERE id = $1")) {
+    const id = params[0] as string;
+    dbData.inquiries = dbData.inquiries.filter((inq: MockInquiry) => inq.id !== id);
+    save();
+    return { rows: [] };
+  }
+
   console.warn("Unrecognized mock query:", text, params);
   return { rows: [] };
 };
@@ -1155,6 +1202,17 @@ export const initDb = async () => {
         slug TEXT NOT NULL UNIQUE,
         content TEXT NOT NULL,
         image TEXT NOT NULL,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+      );
+    `);
+
+    await query(`
+      CREATE TABLE IF NOT EXISTS public.inquiries (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        name TEXT NOT NULL,
+        email TEXT NOT NULL,
+        phone TEXT NOT NULL,
+        message TEXT NOT NULL,
         created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
       );
     `);

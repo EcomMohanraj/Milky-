@@ -14,6 +14,7 @@ import {
   DollarSign,
   Lock,
   Tag,
+  Mail,
 } from "lucide-react";
 import { productService } from "@/services/product.service";
 import { orderService } from "@/services/order.service";
@@ -21,15 +22,25 @@ import { Order, Product, Review, BlogPost } from "@/types";
 import { useToast } from "@/components/ui/toast-simple";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
 
+interface Inquiry {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  message: string;
+  created_at: string;
+}
+
 export default function AdminDashboardPage() {
   const { user, loading: authLoading } = useRequireAuth();
   const { toast } = useToast();
 
-  const [activeTab, setActiveTab] = useState<"orders" | "products" | "reviews" | "coupons" | "blogs">("orders");
+  const [activeTab, setActiveTab] = useState<"orders" | "products" | "reviews" | "coupons" | "blogs" | "inquiries">("orders");
   const [orders, setOrders] = useState<Order[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [blogs, setBlogs] = useState<BlogPost[]>([]);
+  const [inquiries, setInquiries] = useState<Inquiry[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Filter and search states for orders
@@ -97,10 +108,52 @@ export default function AdminDashboardPage() {
         allReviews.push(...revs);
       }
       setReviews(allReviews);
+
+      // Load all inquiries
+      try {
+        const inqRes = await fetch("/api/admin/inquiries");
+        if (inqRes.ok) {
+          const inqData = await inqRes.json();
+          setInquiries(inqData.inquiries || []);
+        }
+      } catch (err) {
+        console.error("Failed to load inquiries:", err);
+      }
     } catch (err) {
       console.error(err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDeleteInquiry = async (inquiryId: string) => {
+    if (!confirm("Are you sure you want to delete this inquiry?")) return;
+    try {
+      const res = await fetch(`/api/admin/inquiries/${inquiryId}`, {
+        method: "DELETE",
+      });
+      if (res.ok) {
+        setInquiries((prev) => prev.filter((inq) => inq.id !== inquiryId));
+        toast({
+          title: "Inquiry Deleted",
+          description: "The inquiry has been successfully removed.",
+          variant: "success",
+        });
+      } else {
+        const data = await res.json();
+        toast({
+          title: "Failed to Delete",
+          description: data.error || "Something went wrong.",
+          variant: "destructive",
+        });
+      }
+    } catch (err) {
+      console.error("Failed to delete inquiry:", err);
+      toast({
+        title: "Error",
+        description: "A network error occurred. Please try again.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -465,6 +518,14 @@ export default function AdminDashboardPage() {
           >
             <BookOpen className="w-4 h-4" />
             Recipe Blog Posts
+          </button>
+          <button
+            onClick={() => setActiveTab("inquiries")}
+            className="w-full text-left px-4 py-3 text-xs font-bold transition-colors flex items-center gap-2 border-t border-border/60 text-muted-foreground hover:bg-muted data-[active=true]:bg-primary data-[active=true]:text-primary-foreground focus:outline-none"
+            data-active={activeTab === "inquiries"}
+          >
+            <Mail className="w-4 h-4" />
+            Customer Inquiries ({inquiries.length})
           </button>
         </div>
 
@@ -1310,6 +1371,75 @@ export default function AdminDashboardPage() {
                       </tbody>
                     </table>
                   </div>
+                </div>
+              )}
+
+              {/* CUSTOMER INQUIRIES */}
+              {activeTab === "inquiries" && (
+                <div className="flex flex-col gap-6">
+                  <div className="border-b border-border/40 pb-3 flex justify-between items-center">
+                    <div>
+                      <h2 className="text-lg font-extrabold text-foreground font-outfit">Customer Inquiries</h2>
+                      <p className="text-[10px] text-muted-foreground mt-0.5">Manage contact form queries and requests submitted by users.</p>
+                    </div>
+                    <span className="text-xs text-muted-foreground font-bold bg-muted/40 px-2 py-0.5 rounded-md">
+                      Total: {inquiries.length}
+                    </span>
+                  </div>
+
+                  {inquiries.length === 0 ? (
+                    <p className="text-xs text-muted-foreground italic py-8 text-center">No customer inquiries submitted yet.</p>
+                  ) : (
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-xs text-left border-collapse">
+                        <thead>
+                          <tr className="border-b border-border/60 text-muted-foreground font-bold uppercase tracking-wider">
+                            <th className="py-3 px-2">Date</th>
+                            <th className="py-3 px-2">Sender</th>
+                            <th className="py-3 px-2">Contact Details</th>
+                            <th className="py-3 px-2">Message</th>
+                            <th className="py-3 px-2 text-right">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {inquiries.map((inq) => (
+                            <tr key={inq.id} className="border-b border-border/60 hover:bg-muted/10">
+                              <td className="py-3 px-2 text-muted-foreground whitespace-nowrap align-top">
+                                {new Date(inq.created_at).toLocaleDateString("en-IN", {
+                                  day: "numeric",
+                                  month: "short",
+                                  year: "numeric",
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                })}
+                              </td>
+                              <td className="py-3 px-2 font-bold text-foreground align-top whitespace-nowrap">
+                                {inq.name}
+                              </td>
+                              <td className="py-3 px-2 text-muted-foreground align-top whitespace-nowrap">
+                                <div className="flex flex-col gap-0.5">
+                                  <a href={`mailto:${inq.email}`} className="hover:underline text-primary font-semibold">{inq.email}</a>
+                                  <span>{inq.phone}</span>
+                                </div>
+                              </td>
+                              <td className="py-3 px-2 text-foreground align-top max-w-xs break-words">
+                                {inq.message}
+                              </td>
+                              <td className="py-3 px-2 text-right align-top">
+                                <button
+                                  onClick={() => handleDeleteInquiry(inq.id)}
+                                  className="text-red-500 hover:text-red-700 p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/20"
+                                  title="Delete Inquiry"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
                 </div>
               )}
 

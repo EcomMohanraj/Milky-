@@ -301,3 +301,28 @@ ON CONFLICT (slug) DO UPDATE SET
   title = EXCLUDED.title,
   content = EXCLUDED.content,
   image = EXCLUDED.image;
+
+
+-- 8. Inquiries Table (Contact Form submissions)
+CREATE TABLE IF NOT EXISTS public.inquiries (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  name TEXT NOT NULL,
+  email TEXT NOT NULL,
+  phone TEXT NOT NULL,
+  message TEXT NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+);
+
+-- Enable RLS for inquiries
+ALTER TABLE public.inquiries ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Allow public inserts into inquiries" ON public.inquiries
+  FOR INSERT WITH CHECK (true);
+
+CREATE POLICY "Allow admin to manage inquiries" ON public.inquiries
+  FOR ALL USING (
+    EXISTS (
+      SELECT 1 FROM public.users
+      WHERE users.id = auth.uid() AND users.role = 'admin'
+    )
+  );
