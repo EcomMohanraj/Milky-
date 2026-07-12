@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { getProductImageUrl } from "@/lib/image";
 import Link from "next/link";
@@ -17,6 +17,11 @@ interface ProductCardProps {
 export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const { addToCart, toggleWishlist, isInWishlist } = useCart();
   const [quickViewOpen, setQuickViewOpen] = useState(false);
+  const [imgSrc, setImgSrc] = useState(getProductImageUrl(product.image));
+
+  useEffect(() => {
+    setImgSrc(getProductImageUrl(product.image));
+  }, [product.image]);
 
   const isFavorite = isInWishlist(product.id);
   const isOutOfStock = product.stock <= 0;
@@ -34,11 +39,14 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         {/* Product Image Wrapper */}
         <div className="relative aspect-square w-full bg-secondary overflow-hidden">
           <Image
-            src={getProductImageUrl(product.image)}
+            src={imgSrc}
             alt={product.name}
             fill
+            placeholder="blur"
+            blurDataURL="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxIiBoZWlnaHQ9IjEiIHZpZXdCb3g9IjAgMCAxIDEiPjxyZWN0IHdpZHRoPSIxIiBoZWlnaHQ9IjEiIGZpbGw9IiNkMWZhZTUiLz48L3N2Zz4="
             className="object-cover group-hover:scale-105 transition-transform duration-500"
             sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 250px"
+            onError={() => setImgSrc("/images/fresh_milky_mushrooms.webp")}
           />
 
           {/* Badges */}

@@ -23,6 +23,13 @@ export default function ProductDetailsPage({ params }: PageProps) {
 
   const [product, setProduct] = useState<Product | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
+  const [imgSrc, setImgSrc] = useState<string>("/images/fresh_milky_mushrooms.webp");
+
+  useEffect(() => {
+    if (product) {
+      setImgSrc(getProductImageUrl(product.image));
+    }
+  }, [product]);
   const [canReview, setCanReview] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -159,12 +166,15 @@ export default function ProductDetailsPage({ params }: PageProps) {
         {/* Product Image Section */}
         <div className="relative aspect-square w-full rounded-3xl overflow-hidden border border-border shadow-md bg-secondary">
           <Image
-            src={getProductImageUrl(product.image)}
+            src={imgSrc}
             alt={product.name}
             fill
+            placeholder="blur"
+            blurDataURL="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxIiBoZWlnaHQ9IjEiIHZpZXdCb3g9IjAgMCAxIDEiPjxyZWN0IHdpZHRoPSIxIiBoZWlnaHQ9IjEiIGZpbGw9IiNkMWZhZTUiLz48L3N2Zz4="
             className="object-cover"
             sizes="(max-width: 768px) 100vw, 500px"
             priority
+            onError={() => setImgSrc("/images/fresh_milky_mushrooms.webp")}
           />
           <button
             onClick={() => toggleWishlist(product)}

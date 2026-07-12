@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { getProductImageUrl } from "@/lib/image";
 import { motion, AnimatePresence } from "framer-motion";
@@ -17,6 +17,13 @@ interface QuickViewModalProps {
 export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen, onClose }) => {
   const { addToCart, toggleWishlist, isInWishlist } = useCart();
   const [quantity, setQuantity] = useState(1);
+  const [imgSrc, setImgSrc] = useState<string>("/images/fresh_milky_mushrooms.webp");
+
+  useEffect(() => {
+    if (product) {
+      setImgSrc(getProductImageUrl(product.image));
+    }
+  }, [product]);
 
   if (!product) return null;
 
@@ -69,12 +76,15 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
               {/* Product Image Section */}
               <div className="w-full md:w-1/2 relative min-h-[250px] md:min-h-[400px] bg-secondary">
                 <Image
-                  src={getProductImageUrl(product.image)}
+                  src={imgSrc}
                   alt={product.name}
                   fill
+                  placeholder="blur"
+                  blurDataURL="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxIiBoZWlnaHQ9IjEiIHZpZXdCb3g9IjAgMCAxIDEiPjxyZWN0IHdpZHRoPSIxIiBoZWlnaHQ9IjEiIGZpbGw9IiNkMWZhZTUiLz48L3N2Zz4="
                   className="object-cover"
                   sizes="(max-width: 768px) 100vw, 50vw"
                   priority
+                  onError={() => setImgSrc("/images/fresh_milky_mushrooms.webp")}
                 />
                 
                 {/* Wishlist overlay */}
